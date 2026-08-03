@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "engineVersion": "3.2.0",
+  "generatedAt": "2026-08-03T14:20:10.243Z",
+  "selection": {
+    "agent": "codex",
+    "grammar": "consumer-service",
+    "grammarSource": "built-in:consumer-service",
+    "fallback": "consumer-service",
+    "adapter": "product-ui",
+    "domain": "productivity",
+    "page": "list",
+    "recipe": "calm-consumer",
+    "recipeSelection": "calm-consumer",
+    "profile": "none"
+  },
+  "bundle": {
+    "path": ".styleseed/effective-rules.md",
+    "sha256": "1afaa6a226330c7b1c36352573df2b8f571ca41c7237d84d6b91b050e02531ad",
+    "bytes": 14512
+  },
+  "sources": [
+    {
+      "id": "agent-execution",
+      "sha256": "dfe4b0a2de36209ca50a04b39e35c248ac13fb8b059428fdb68a484cffc190cb",
+      "bytes": 329
+    },
+    {
+      "id": "core",
+      "sha256": "041d55d2a32c8e3965efeb7c743e01fd2b90c64cf21811426d826d62409dcf12",
+      "bytes": 4435
+    },
+    {
+      "id": "grammar",
+      "sha256": "0dd9297448a47c0383e902627ff24a6cbf8fb32427243ce4eac684f4b101421c",
+      "bytes": 963
+    },
+    {
+      "id": "adapter",
+      "sha256": "7b5b5c34b0b235dca329e6384ccb94c66ee65a348bbe7142277ae7bbda3c13b0",
+      "bytes": 714
+    },
+    {
+      "id": "domain",
+      "sha256": "1bfc83fec1a7775961f2a26101110570379ddab0dcc50fca0af731336b7d4b09",
+      "bytes": 936
+    },
+    {
+      "id": "page",
+      "sha256": "d347ce54903e7b826556118bf6a771152ad3c897ba897de14ace7b422ba7d564",
+      "bytes": 851
+    },
+    {
+      "id": "recipe",
+      "sha256": "6aa52992150b131d09f8039cf5e24fab7ace9fa0a51c934ac874852927b265e8",
+      "bytes": 1181
+    },
+    {
+      "id": "lock",
+      "sha256": "675194dc78bdb66d1dd1c40c2bdd47a611ec1fa0c064b13850692c3324baf2c1",
+      "bytes": 842
+    },
+    {
+      "id": "craft",
+      "sha256": "9f8b9c38d3ec1dc6d476a149b7c3502b27c51cbb55bce397a696b44335a22d21",
+      "bytes": 3564
+    }
+  ]
+}

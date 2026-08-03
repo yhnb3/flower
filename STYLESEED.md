@@ -1,0 +1,22 @@
+# StyleSeed - Design Lock
+<!-- Selections persist here. This file cannot waive StyleSeed core invariants. -->
+- App domain: productivity
+- Surface: responsive-web-app
+- Surface adapter: product-ui
+- Page type: list
+- Output grammar: consumer-service
+- Grammar path: built-in:engine/RULESETS.md
+- Grammar fallback: consumer-service
+- Reference confidence: n/a
+- Brand recipe: calm-consumer
+- Aesthetic profile: none
+- Skin: custom
+- Primary action: #F3C84D
+- Font: Pretendard
+- Radius: soft
+- Elevation: light=paper layering + hairline edges + restrained contact shadow
+- Density: comfortable
+- Motion: Spring restrained
+- Imagery/data role: folder tabs organize personal task state; no decorative imagery
+- Signature move: a single open file-folder board with post-it task notes as the focal point
+- Locked: 2026-08-03
