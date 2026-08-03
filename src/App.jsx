@@ -5,25 +5,11 @@ import "./styles.css";
 
 const initialFolders = [
   { id: "today", label: "오늘" },
-  { id: "work", label: "업무" },
-  { id: "home", label: "생활" },
-  { id: "later", label: "나중" },
 ];
 
-const initialTasks = [
-  { id: 1, folder: "today", title: "오전 회의 전 자료 3개만 정리하기", done: false },
-  { id: 2, folder: "today", title: "저녁 7시 전 장보기 목록 확인", done: true },
-  { id: 3, folder: "work", title: "분기 목표 초안에 누락된 일정 채우기", done: false },
-  { id: 4, folder: "work", title: "디자인 피드백 5줄로 정리", done: false },
-  { id: 5, folder: "home", title: "세탁물 찾기", done: false },
-  { id: 6, folder: "later", title: "읽고 싶은 책 후보 정리", done: false },
-];
+const initialTasks = [];
 
-const initialMemos = [
-  { id: 101, folder: "today", content: "회의 중 나온 숫자는 끝난 뒤 다시 확인" },
-  { id: 102, folder: "today", content: "자료 공유 전에 제목과 링크 확인" },
-  { id: 103, folder: "work", content: "다음 피드백은 화면별로 나눠서 전달" },
-];
+const initialMemos = [];
 
 const storageKey = "flower-planner-state";
 

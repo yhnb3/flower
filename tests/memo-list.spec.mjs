@@ -14,12 +14,31 @@ try {
     "the original todo board should remain available",
   );
 
-  const todoToggle = page.getByLabel("오전 회의 전 자료 3개만 정리하기 완료하기");
+  assert.equal(await page.getByRole("button", { name: "오늘", exact: true }).count(), 1);
+  assert.equal(
+    await page.getByRole("button", { name: "업무", exact: true }).count(),
+    0,
+    "first-time users should not receive pre-created folders",
+  );
+  assert.equal(
+    await page.locator(".task-note").count(),
+    0,
+    "first-time users should not receive sample tasks",
+  );
+  assert.equal(
+    await page.locator(".memo-item").count(),
+    0,
+    "first-time users should not receive sample memos",
+  );
+
+  await page.getByLabel("새 할 일").fill("브라우저 할 일 확인");
+  await page.locator(".add-row").getByRole("button", { name: "추가", exact: true }).click();
+  const todoToggle = page.getByLabel("브라우저 할 일 확인 완료하기");
   await todoToggle.click();
   assert.equal(
-    await page.getByLabel("오전 회의 전 자료 3개만 정리하기 미완료로 바꾸기").count(),
+    await page.getByLabel("브라우저 할 일 확인 미완료로 바꾸기").count(),
     1,
-    "existing todo completion should keep working",
+    "new todo completion should keep working",
   );
 
   assert.equal(
