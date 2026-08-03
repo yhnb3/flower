@@ -35,7 +35,8 @@ body {
 }
 
 button,
-input {
+input,
+textarea {
   font: inherit;
 }
 
@@ -44,7 +45,8 @@ button {
 }
 
 button:focus-visible,
-input:focus-visible {
+input:focus-visible,
+textarea:focus-visible {
   outline: 3px solid rgba(166, 125, 11, 0.42);
   outline-offset: 3px;
 }
@@ -239,58 +241,6 @@ h1 {
   content: "";
 }
 
-.summary-strip {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 18px 20px;
-  border: 1px solid rgba(166, 125, 11, 0.22);
-  border-radius: var(--radius-md);
-  background: rgba(255, 253, 241, 0.76);
-}
-
-.summary-strip h2 {
-  display: -webkit-box;
-  max-width: min(560px, 100%);
-  min-width: 0;
-  margin: 0;
-  font-size: 28px;
-  line-height: 1.18;
-  overflow: hidden;
-  overflow-wrap: anywhere;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-.summary-numbers {
-  display: flex;
-  gap: 12px;
-}
-
-.summary-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.summary-numbers span {
-  display: grid;
-  min-width: 82px;
-  padding: 10px 12px;
-  border-radius: var(--radius-sm);
-  background: var(--paper-soft);
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.summary-numbers strong {
-  color: var(--ink);
-  font-size: 28px;
-  line-height: 1;
-}
-
 .folder-delete-button {
   display: inline-flex;
   align-items: center;
@@ -304,6 +254,14 @@ h1 {
   color: var(--muted);
   font-size: 14px;
   font-weight: 850;
+}
+
+.folder-bottom-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(166, 125, 11, 0.24);
 }
 
 .folder-delete-button:disabled {
@@ -416,7 +374,7 @@ h1 {
   min-height: 36px;
 }
 
-.task-column-header h3 {
+.task-column-header h2 {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -427,7 +385,7 @@ h1 {
   line-height: 1.25;
 }
 
-.task-column-header h3 svg {
+.task-column-header h2 svg {
   flex: 0 0 auto;
   color: var(--line-strong);
 }
@@ -506,6 +464,118 @@ h1 {
   text-decoration-thickness: 2px;
 }
 
+.memo-area {
+  display: grid;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.memo-add-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.memo-add-row textarea {
+  flex: 1;
+  min-width: 0;
+  min-height: 40px;
+  max-height: 120px;
+  padding: 8px 4px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  caret-color: var(--ink);
+  font-size: 16px;
+  line-height: 1.45;
+  resize: vertical;
+}
+
+.memo-add-row textarea:focus,
+.memo-add-row textarea:focus-visible {
+  outline: 0;
+}
+
+.memo-add-row textarea::placeholder {
+  color: rgba(117, 106, 73, 0.72);
+}
+
+.memo-add-row button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 76px;
+  min-width: 68px;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--paper-deep);
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.memo-list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.memo-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  min-height: 56px;
+  padding: 4px 0 4px 12px;
+  border-bottom: 1px solid rgba(166, 125, 11, 0.24);
+  background: transparent;
+}
+
+.memo-item:first-child {
+  border-top: 1px solid rgba(166, 125, 11, 0.24);
+}
+
+.memo-content {
+  width: 100%;
+  padding: 10px 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+.memo-edit-input {
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  padding: 6px 0;
+  border: 0;
+  border-bottom: 2px solid var(--line-strong);
+  background: transparent;
+  color: var(--ink);
+  caret-color: var(--ink);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  resize: vertical;
+}
+
+.memo-empty-state {
+  min-height: 120px;
+  padding: 20px;
+}
+
 .empty-state {
   display: grid;
   place-items: center;
@@ -545,8 +615,7 @@ h1 {
     padding: 18px;
   }
 
-  .topbar,
-  .summary-strip {
+  .topbar {
     align-items: flex-start;
     flex-direction: column;
   }
@@ -577,16 +646,21 @@ h1 {
     padding: 18px;
   }
 
-  .summary-actions,
-  .summary-numbers,
   .task-board,
   .task-stack {
     width: 100%;
   }
 
-  .summary-actions {
-    align-items: flex-start;
-    flex-direction: column;
+  .folder-bottom-actions {
+    margin-top: 20px;
+  }
+
+  .memo-add-row {
+    align-items: stretch;
+  }
+
+  .memo-add-row button {
+    align-self: center;
   }
 
   .add-row {
