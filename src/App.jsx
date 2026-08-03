@@ -216,6 +216,7 @@ function App() {
                     className={`folder-tab folder-name-input ${
                       activeFolder === folder.id ? "is-active" : ""
                     }`}
+                    autoComplete="off"
                     value={folderDraft}
                     onChange={(event) => setFolderDraft(event.target.value)}
                     onBlur={commitFolderName}
@@ -257,6 +258,7 @@ function App() {
                 <textarea
                   id="memo-input"
                   aria-label="새 메모"
+                  autoComplete="off"
                   value={memoDraft}
                   onChange={(event) => setMemoDraft(event.target.value)}
                   placeholder="메모를 적어주세요"
@@ -283,6 +285,7 @@ function App() {
                           ref={memoEditInputRef}
                           className="memo-edit-input"
                           aria-label="메모 수정"
+                          autoComplete="off"
                           value={memoEditDraft}
                           onChange={(event) => setMemoEditDraft(event.target.value)}
                           onBlur={commitMemoEdit}
@@ -327,6 +330,7 @@ function App() {
               <input
                 id="task-input"
                 aria-label="새 할 일"
+                autoComplete="off"
                 value={taskDraft}
                 onChange={(event) => setTaskDraft(event.target.value)}
                 placeholder="할 일 추가"

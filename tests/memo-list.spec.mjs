@@ -42,6 +42,22 @@ try {
     "the folder delete action should appear after the folder content",
   );
 
+  assert.deepEqual(
+    await page.locator("input, textarea").evaluateAll((fields) =>
+      fields.map((field) => field.getAttribute("autocomplete")),
+    ),
+    ["off", "off"],
+    "all initially visible text fields should disable browser autocomplete",
+  );
+
+  await page.getByRole("button", { name: "오늘", exact: true }).dblclick();
+  assert.equal(
+    await page.locator(".folder-name-input").getAttribute("autocomplete"),
+    "off",
+    "folder name editing should disable browser autocomplete",
+  );
+  await page.keyboard.press("Escape");
+
   const newMemo = page.getByLabel("새 메모");
   await newMemo.fill("브라우저 메모 확인");
   await page.locator(".memo-area").getByRole("button", { name: "추가", exact: true }).click();
@@ -49,6 +65,11 @@ try {
 
   await page.getByRole("button", { name: "브라우저 메모 확인 메모 수정" }).click();
   const editingMemo = page.getByLabel("메모 수정", { exact: true });
+  assert.equal(
+    await editingMemo.getAttribute("autocomplete"),
+    "off",
+    "memo editing should disable browser autocomplete",
+  );
   await editingMemo.fill("수정된 브라우저 메모");
   await editingMemo.press("Tab");
   assert.equal(await page.getByText("수정된 브라우저 메모", { exact: true }).count(), 1);
