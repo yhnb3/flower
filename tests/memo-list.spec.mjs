@@ -76,6 +76,33 @@ try {
 
   await page.getByRole("button", { name: "수정된 브라우저 메모 삭제" }).click();
   assert.equal(await page.getByText("수정된 브라우저 메모", { exact: true }).count(), 0);
+
+  await page.getByRole("button", { name: "새 폴더", exact: true }).click();
+  const folderNameInput = page.locator(".folder-name-input");
+  await folderNameInput.fill("저장 확인");
+  await folderNameInput.press("Enter");
+
+  await page.getByLabel("새 메모").fill("새로고침 뒤에도 남는 메모");
+  await page.locator(".memo-area").getByRole("button", { name: "추가", exact: true }).click();
+  await page.getByLabel("새 할 일").fill("새로고침 뒤에도 남는 할 일");
+  await page.locator(".add-row").getByRole("button", { name: "추가", exact: true }).click();
+
+  await page.reload({ waitUntil: "networkidle" });
+  assert.equal(
+    await page.getByRole("button", { name: "저장 확인", exact: true }).count(),
+    1,
+    "new folders should persist after a reload",
+  );
+  assert.equal(
+    await page.getByText("새로고침 뒤에도 남는 메모", { exact: true }).count(),
+    1,
+    "memos in the active folder should persist after a reload",
+  );
+  assert.equal(
+    await page.getByText("새로고침 뒤에도 남는 할 일", { exact: true }).count(),
+    1,
+    "tasks in the active folder should persist after a reload",
+  );
 } finally {
   await browser.close();
 }

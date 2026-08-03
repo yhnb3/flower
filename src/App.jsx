@@ -25,11 +25,78 @@ const initialMemos = [
   { id: 103, folder: "work", content: "다음 피드백은 화면별로 나눠서 전달" },
 ];
 
+const storageKey = "flower-planner-state";
+
+function isRecord(value) {
+  return value !== null && typeof value === "object";
+}
+
+function isItemId(value) {
+  return (typeof value === "number" && Number.isFinite(value)) || typeof value === "string";
+}
+
+function readStoredPlanner() {
+  try {
+    const storedValue = window.localStorage.getItem(storageKey);
+    if (!storedValue) return null;
+
+    const parsedValue = JSON.parse(storedValue);
+    if (
+      !isRecord(parsedValue) ||
+      !Array.isArray(parsedValue.folders) ||
+      !Array.isArray(parsedValue.tasks) ||
+      !Array.isArray(parsedValue.memos)
+    ) {
+      return null;
+    }
+
+    // Keep manually edited or stale browser storage from breaking the planner.
+    const folders = parsedValue.folders.filter(
+      (folder) =>
+        isRecord(folder) &&
+        typeof folder.id === "string" &&
+        folder.id.trim() &&
+        typeof folder.label === "string" &&
+        folder.label.trim(),
+    );
+    if (folders.length === 0) return null;
+
+    const folderIds = new Set(folders.map((folder) => folder.id));
+    const tasks = parsedValue.tasks.filter(
+      (task) =>
+        isRecord(task) &&
+        isItemId(task.id) &&
+        typeof task.folder === "string" &&
+        folderIds.has(task.folder) &&
+        typeof task.title === "string" &&
+        typeof task.done === "boolean",
+    );
+    const memos = parsedValue.memos.filter(
+      (memo) =>
+        isRecord(memo) &&
+        isItemId(memo.id) &&
+        typeof memo.folder === "string" &&
+        folderIds.has(memo.folder) &&
+        typeof memo.content === "string",
+    );
+    const activeFolder = folderIds.has(parsedValue.activeFolder)
+      ? parsedValue.activeFolder
+      : folders[0].id;
+
+    return { folders, activeFolder, tasks, memos };
+  } catch {
+    return null;
+  }
+}
+
 function App() {
-  const [folders, setFolders] = useState(initialFolders);
-  const [activeFolder, setActiveFolder] = useState("today");
-  const [tasks, setTasks] = useState(initialTasks);
-  const [memos, setMemos] = useState(initialMemos);
+  const [storedPlanner] = useState(readStoredPlanner);
+  const [folders, setFolders] = useState(() => storedPlanner?.folders ?? initialFolders);
+  const [activeFolder, setActiveFolder] = useState(
+    () => storedPlanner?.activeFolder ?? initialFolders[0].id,
+  );
+  const [tasks, setTasks] = useState(() => storedPlanner?.tasks ?? initialTasks);
+  const [memos, setMemos] = useState(() => storedPlanner?.memos ?? initialMemos);
   const [taskDraft, setTaskDraft] = useState("");
   const [memoDraft, setMemoDraft] = useState("");
   const [editingFolder, setEditingFolder] = useState(null);
@@ -68,6 +135,17 @@ function App() {
     ],
     [doneTasks, openTasks],
   );
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(
+        storageKey,
+        JSON.stringify({ folders, activeFolder, tasks, memos }),
+      );
+    } catch {
+      // Storage can be unavailable in restricted browsing contexts.
+    }
+  }, [activeFolder, folders, memos, tasks]);
 
   useEffect(() => {
     if (editingFolder) {
