@@ -1,6 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { createRoot } from "react-dom/client";
-import { Archive, Check, Clock3, Plus, Trash2 } from "lucide-react";
+import { Archive, Check, Cloud, CloudOff, Clock3, Plus, RefreshCw, Trash2 } from "lucide-react";
+import {
+  legacyPlannerStorageKey,
+  readStoredPlanner,
+  writeStoredPlanner,
+} from "./planner-storage.js";
 import "./styles.css";
 
 const initialFolders = [
@@ -11,72 +15,47 @@ const initialTasks = [];
 
 const initialMemos = [];
 
-const storageKey = "flower-planner-state";
+export const initialPlannerState = {
+  folders: initialFolders,
+  activeFolder: initialFolders[0].id,
+  tasks: initialTasks,
+  memos: initialMemos,
+};
 
-function isRecord(value) {
-  return value !== null && typeof value === "object";
+function SyncStatus({ status, onRetry }) {
+  if (!status) return null;
+  const needsAction = status.type === "error" || status.type === "conflict";
+  const StatusIcon = needsAction ? CloudOff : status.type === "saving" ? RefreshCw : Cloud;
+
+  return (
+    <div className={`sync-status is-${status.type}`} role="status" aria-live="polite">
+      <StatusIcon
+        aria-hidden="true"
+        className={status.type === "saving" ? "is-spinning" : ""}
+        size={16}
+      />
+      <span>{status.message}</span>
+      {needsAction ? (
+        <button type="button" onClick={onRetry}>
+          {status.type === "conflict" ? "새로고침" : "다시 시도"}
+        </button>
+      ) : null}
+    </div>
+  );
 }
 
-function isItemId(value) {
-  return (typeof value === "number" && Number.isFinite(value)) || typeof value === "string";
-}
-
-function readStoredPlanner() {
-  try {
-    const storedValue = window.localStorage.getItem(storageKey);
-    if (!storedValue) return null;
-
-    const parsedValue = JSON.parse(storedValue);
-    if (
-      !isRecord(parsedValue) ||
-      !Array.isArray(parsedValue.folders) ||
-      !Array.isArray(parsedValue.tasks) ||
-      !Array.isArray(parsedValue.memos)
-    ) {
-      return null;
-    }
-
-    // Keep manually edited or stale browser storage from breaking the planner.
-    const folders = parsedValue.folders.filter(
-      (folder) =>
-        isRecord(folder) &&
-        typeof folder.id === "string" &&
-        folder.id.trim() &&
-        typeof folder.label === "string" &&
-        folder.label.trim(),
-    );
-    if (folders.length === 0) return null;
-
-    const folderIds = new Set(folders.map((folder) => folder.id));
-    const tasks = parsedValue.tasks.filter(
-      (task) =>
-        isRecord(task) &&
-        isItemId(task.id) &&
-        typeof task.folder === "string" &&
-        folderIds.has(task.folder) &&
-        typeof task.title === "string" &&
-        typeof task.done === "boolean",
-    );
-    const memos = parsedValue.memos.filter(
-      (memo) =>
-        isRecord(memo) &&
-        isItemId(memo.id) &&
-        typeof memo.folder === "string" &&
-        folderIds.has(memo.folder) &&
-        typeof memo.content === "string",
-    );
-    const activeFolder = folderIds.has(parsedValue.activeFolder)
-      ? parsedValue.activeFolder
-      : folders[0].id;
-
-    return { folders, activeFolder, tasks, memos };
-  } catch {
-    return null;
-  }
-}
-
-function App() {
-  const [storedPlanner] = useState(readStoredPlanner);
+export default function App({
+  initialPlanner,
+  storageKey = legacyPlannerStorageKey,
+  onPlannerChange,
+  syncStatus,
+  onRetrySync,
+  migrationControl,
+  accountControl,
+}) {
+  const [storedPlanner] = useState(
+    () => initialPlanner ?? readStoredPlanner(storageKey) ?? initialPlannerState,
+  );
   const [folders, setFolders] = useState(() => storedPlanner?.folders ?? initialFolders);
   const [activeFolder, setActiveFolder] = useState(
     () => storedPlanner?.activeFolder ?? initialFolders[0].id,
@@ -91,6 +70,7 @@ function App() {
   const [memoEditDraft, setMemoEditDraft] = useState("");
   const folderEditInputRef = useRef(null);
   const memoEditInputRef = useRef(null);
+  const hasMountedRef = useRef(false);
 
   const visibleTasks = tasks.filter((task) => task.folder === activeFolder);
   const openTasks = visibleTasks.filter((task) => !task.done);
@@ -123,15 +103,11 @@ function App() {
   );
 
   useEffect(() => {
-    try {
-      window.localStorage.setItem(
-        storageKey,
-        JSON.stringify({ folders, activeFolder, tasks, memos }),
-      );
-    } catch {
-      // Storage can be unavailable in restricted browsing contexts.
-    }
-  }, [activeFolder, folders, memos, tasks]);
+    const planner = { folders, activeFolder, tasks, memos };
+    writeStoredPlanner(storageKey, planner);
+    if (hasMountedRef.current) onPlannerChange?.(planner);
+    hasMountedRef.current = true;
+  }, [activeFolder, folders, memos, onPlannerChange, storageKey, tasks]);
 
   useEffect(() => {
     if (editingFolder) {
@@ -264,6 +240,11 @@ function App() {
       <section className="workspace" aria-labelledby="page-title">
         <header className="topbar">
           <h1 id="page-title">花 Planner</h1>
+          <div className="topbar-actions">
+            <SyncStatus status={syncStatus} onRetry={onRetrySync} />
+            {migrationControl}
+            {accountControl}
+          </div>
         </header>
 
         <div className="folder-board">
@@ -281,6 +262,7 @@ function App() {
                       activeFolder === folder.id ? "is-active" : ""
                     }`}
                     autoComplete="off"
+                    maxLength={100}
                     value={folderDraft}
                     onChange={(event) => setFolderDraft(event.target.value)}
                     onBlur={commitFolderName}
@@ -323,6 +305,7 @@ function App() {
                   id="memo-input"
                   aria-label="새 메모"
                   autoComplete="off"
+                  maxLength={5000}
                   value={memoDraft}
                   onChange={(event) => setMemoDraft(event.target.value)}
                   placeholder="메모를 적어주세요"
@@ -350,6 +333,7 @@ function App() {
                           className="memo-edit-input"
                           aria-label="메모 수정"
                           autoComplete="off"
+                          maxLength={5000}
                           value={memoEditDraft}
                           onChange={(event) => setMemoEditDraft(event.target.value)}
                           onBlur={commitMemoEdit}
@@ -395,6 +379,7 @@ function App() {
                 id="task-input"
                 aria-label="새 할 일"
                 autoComplete="off"
+                maxLength={500}
                 value={taskDraft}
                 onChange={(event) => setTaskDraft(event.target.value)}
                 placeholder="할 일 추가"
@@ -471,5 +456,3 @@ function App() {
     </main>
   );
 }
-
-createRoot(document.getElementById("root")).render(<App />);
