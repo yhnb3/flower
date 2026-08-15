@@ -17,6 +17,27 @@
   display: none;
 }
 
+.folder-tabs-mobile-tools {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 6px;
+}
+
+.folder-tabs-mobile-tools button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--line-muted);
+  border-radius: var(--radius-sm);
+  background: var(--paper-soft-translucent);
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 850;
+}
+
 .folder-tabs .visually-hidden {
   position: absolute;
   width: 1px;
@@ -32,7 +53,7 @@
 .folder-tab-drag-overlay {
   width: 120px;
   cursor: grabbing;
-  filter: drop-shadow(0 12px 16px rgb(67 47 34 / 22%));
+  filter: drop-shadow(0 12px 16px var(--shadow-drag-color));
   pointer-events: none;
 }
 

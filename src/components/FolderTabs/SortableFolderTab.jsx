@@ -5,6 +5,7 @@ import "./SortableFolderTab.css";
 export default function SortableFolderTab({
   folder,
   index,
+  dragDisabled,
   isActive,
   isEditing,
   folderDraft,
@@ -19,7 +20,7 @@ export default function SortableFolderTab({
     id: folder.id,
     index,
     data: { label: folder.label },
-    disabled: isEditing,
+    disabled: isEditing || dragDisabled,
   });
 
   const sortableRef = useCallback(
@@ -61,7 +62,7 @@ export default function SortableFolderTab({
       ref={sortableRef}
       className={`folder-tab-wrap folder-tab ${isActive ? "is-active" : ""} ${
         isDragging ? "folder-tab-placeholder" : ""
-      }`}
+      } ${dragDisabled ? "is-touch-scrollable" : ""}`}
       data-folder-id={folder.id}
       type="button"
       onClick={() => onSelectFolder(folder.id)}

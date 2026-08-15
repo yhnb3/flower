@@ -37,6 +37,11 @@ try {
   }
 
   const folderTabs = page.locator(".folder-tabs");
+  assert.equal(
+    await page.getByRole("button", { name: "폴더 순서 변경" }).count(),
+    0,
+    "pointer-first desktop layouts should keep direct tab dragging without a reorder mode",
+  );
   const folderOne = page.getByRole("button", { name: "폴더 1", exact: true });
   const folderTwo = page.getByRole("button", { name: "폴더 2", exact: true });
   const folderThree = page.getByRole("button", { name: "폴더 3", exact: true });

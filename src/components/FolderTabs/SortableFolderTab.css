@@ -40,6 +40,11 @@ button.folder-tab-wrap.folder-tab {
   touch-action: none;
 }
 
+button.folder-tab-wrap.folder-tab.is-touch-scrollable {
+  cursor: pointer;
+  touch-action: pan-x;
+}
+
 .folder-tab-placeholder {
   border-style: dashed;
   border-color: var(--line-strong);
