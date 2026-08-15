@@ -23,8 +23,8 @@ function isText(value, maxLength) {
 
 function isItemId(value) {
   return (
-    (typeof value === "number" && Number.isSafeInteger(value)) ||
-    (typeof value === "string" && value.length > 0 && value.length <= 128)
+    (typeof value === "number" && Number.isSafeInteger(value) && value > 0) ||
+    isText(value, 128)
   );
 }
 
@@ -59,30 +59,36 @@ export function parsePlannerState(value) {
     throw invalidPlanner();
   }
 
+  const taskIds = new Set();
   const tasks = value.tasks.map((task) => {
     if (
       !isRecord(task) ||
       !hasOnlyKeys(task, ["id", "folder", "title", "done"]) ||
       !isItemId(task.id) ||
+      taskIds.has(task.id) ||
       !folderIds.has(task.folder) ||
       !isText(task.title, 500) ||
       typeof task.done !== "boolean"
     ) {
       throw invalidPlanner();
     }
+    taskIds.add(task.id);
     return { id: task.id, folder: task.folder, title: task.title, done: task.done };
   });
 
+  const memoIds = new Set();
   const memos = value.memos.map((memo) => {
     if (
       !isRecord(memo) ||
       !hasOnlyKeys(memo, ["id", "folder", "content"]) ||
       !isItemId(memo.id) ||
+      memoIds.has(memo.id) ||
       !folderIds.has(memo.folder) ||
       !isText(memo.content, 5_000)
     ) {
       throw invalidPlanner();
     }
+    memoIds.add(memo.id);
     return { id: memo.id, folder: memo.folder, content: memo.content };
   });
 
