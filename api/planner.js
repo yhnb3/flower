@@ -5,7 +5,6 @@ import { createPlannerRepository } from "./_planner-repository.js";
 const handler = createPlannerHandler({
   authenticate: createClerkAuthenticator(),
   repository: createPlannerRepository(),
-  allowedUserId: process.env.OWNER_CLERK_USER_ID || undefined,
 });
 
 export default {

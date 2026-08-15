@@ -14,6 +14,10 @@ export function isPlannerVersionConflict(caughtError) {
   return caughtError instanceof PlannerApiError && caughtError.code === "VERSION_CONFLICT";
 }
 
+export function isPlannerAccessDenied(caughtError) {
+  return caughtError instanceof PlannerApiError && caughtError.code === "FORBIDDEN";
+}
+
 function isRecord(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }

@@ -28,10 +28,20 @@ test("the planner API rejects unauthenticated requests", async () => {
   assert.equal((await response.json()).error.code, "UNAUTHENTICATED");
 });
 
-test("the planner API rejects a signed-in user outside the owner allowlist", async () => {
+test("the planner API rejects an authenticated user denied by the authenticator", async () => {
   const handler = createPlannerHandler({
-    authenticate: async () => "user_guest",
-    allowedUserId: "user_owner",
+    authenticate: async () => ({ userId: "user_guest", isAllowed: false }),
+    repository: { get: async () => null, save: async () => null },
+  });
+
+  const response = await handler(request("GET"));
+  assert.equal(response.status, 403);
+  assert.equal((await response.json()).error.code, "FORBIDDEN");
+});
+
+test("the planner API fails closed for a malformed authorization decision", async () => {
+  const handler = createPlannerHandler({
+    authenticate: async () => ({ userId: "user_guest" }),
     repository: { get: async () => null, save: async () => null },
   });
 

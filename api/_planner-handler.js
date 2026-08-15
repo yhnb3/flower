@@ -23,14 +23,17 @@ function hasOnlyKeys(value, keys) {
   return actualKeys.length === keys.length && actualKeys.every((key) => keys.includes(key));
 }
 
-export function createPlannerHandler({ authenticate, repository, allowedUserId }) {
+export function createPlannerHandler({ authenticate, repository }) {
   return async function handlePlannerRequest(request) {
     try {
-      const userId = await authenticate(request);
-      if (!userId) {
+      const authenticatedUser = await authenticate(request);
+      if (!authenticatedUser) {
         return error("UNAUTHENTICATED", "로그인이 필요합니다.", 401);
       }
-      if (allowedUserId && userId !== allowedUserId) {
+      const usesLegacyIdentity = typeof authenticatedUser === "string";
+      const userId = usesLegacyIdentity ? authenticatedUser : authenticatedUser.userId;
+      const isAllowed = usesLegacyIdentity || authenticatedUser.isAllowed === true;
+      if (typeof userId !== "string" || !userId || !isAllowed) {
         return error("FORBIDDEN", "이 플래너에 접근할 수 없습니다.", 403);
       }
 

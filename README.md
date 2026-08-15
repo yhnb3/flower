@@ -60,6 +60,7 @@ CLERK_SECRET_KEY=sk_test_...
 TURSO_DATABASE_URL=libsql://...
 TURSO_AUTH_TOKEN=...
 CLERK_AUTHORIZED_PARTIES=http://localhost:3000
+ALLOWED_USER_EMAILS=owner@example.com,second-owner@example.com
 ```
 
 `CLERK_SECRET_KEY`와 `TURSO_AUTH_TOKEN`에는 `VITE_` 접두어를 붙이지 마세요. `VITE_` 값은 브라우저 번들에 노출됩니다.
@@ -90,7 +91,12 @@ Vercel 프로젝트의 Production/Preview/Development 환경변수에 `.env.exam
 
 - `CLERK_AUTHORIZED_PARTIES`에 실제 도메인을 추가합니다.
 - Clerk 프로덕션 인스턴스에서 Google OAuth Client ID/Secret을 연결합니다.
-- 본인 계정 하나만 허용하려면 첫 로그인 후 Clerk Dashboard의 User ID를 `OWNER_CLERK_USER_ID`로 등록합니다.
-- `OWNER_CLERK_USER_ID`를 비워 두면 Google로 로그인한 각 사용자가 자신의 독립된 planner 행을 갖습니다.
+- `ALLOWED_USER_EMAILS`에 접근을 허용할 기본 이메일 주소를 쉼표로 구분해 등록합니다. 비교할 때 대소문자와 앞뒤 공백은 무시합니다.
+- 로그인과 가입 단계부터 막으려면 Clerk Dashboard의 **Restrictions → Allowlist**도 활성화하고 같은 이메일 주소를 등록합니다.
+- `ALLOWED_USER_EMAILS`가 비어 있을 때만 기존 `OWNER_CLERK_USER_ID` 단일 사용자 제한을 사용합니다. 두 값이 모두 비어 있으면 로그인한 사용자마다 독립된 planner 행을 갖습니다.
 
-API는 요청에서 보낸 user ID를 신뢰하지 않고 Clerk가 검증한 세션의 `userId`만 Turso 키로 사용합니다.
+API는 요청에서 보낸 사용자 정보를 신뢰하지 않습니다. Clerk가 검증한 세션의 `userId`와 Clerk Backend API가 반환한 기본 이메일 주소를 확인한 뒤, 해당 `userId`만 Turso 키로 사용합니다.
+
+Clerk 접근 제한 문서: https://clerk.com/docs/guides/secure/restricting-access
+
+Clerk Backend 사용자 조회 문서: https://clerk.com/docs/reference/backend/user/get-user

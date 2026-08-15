@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   createPlannerApi,
+  isPlannerAccessDenied,
   isPlannerVersionConflict,
   PlannerApiError,
 } from "../src/planner-api.js";
@@ -90,4 +91,9 @@ test("only version conflict API errors block automatic saves", () => {
   );
   assert.equal(isPlannerVersionConflict(new PlannerApiError("NETWORK_ERROR", "offline")), false);
   assert.equal(isPlannerVersionConflict(new Error("VERSION_CONFLICT")), false);
+});
+
+test("only forbidden API errors are treated as access denial", () => {
+  assert.equal(isPlannerAccessDenied(new PlannerApiError("FORBIDDEN", "forbidden")), true);
+  assert.equal(isPlannerAccessDenied(new PlannerApiError("NETWORK_ERROR", "offline")), false);
 });

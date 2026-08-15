@@ -3,11 +3,16 @@ import { createRoot } from "react-dom/client";
 import { ClerkProvider, UserButton, useAuth } from "@clerk/react";
 import { AlertCircle } from "lucide-react";
 import App, { initialPlannerState } from "./App.jsx";
+import AccessDeniedState from "./components/AccessDeniedState/AccessDeniedState.jsx";
 import LoadingState from "./components/LoadingState/LoadingState.jsx";
 import MigrationControl from "./components/MigrationControl/MigrationControl.jsx";
 import PageState from "./components/PageState/PageState.jsx";
 import SignedOutState from "./components/SignedOutState/SignedOutState.jsx";
-import { createPlannerApi, isPlannerVersionConflict } from "./planner-api.js";
+import {
+  createPlannerApi,
+  isPlannerAccessDenied,
+  isPlannerVersionConflict,
+} from "./planner-api.js";
 import {
   getPlannerStorageKey,
   legacyPlannerStorageKey,
@@ -33,6 +38,13 @@ function AuthenticatedPlanner({ userId, getToken }) {
   const migrationStatusRef = useRef("unavailable");
   const [migrationStatus, setMigrationStatus] = useState("unavailable");
 
+  const showAccessDenied = useCallback(() => {
+    window.clearTimeout(saveTimerRef.current);
+    conflictRef.current = true;
+    setLoadState((current) => ({ ...current, type: "forbidden" }));
+    setSyncStatus(null);
+  }, []);
+
   const updateMigrationStatus = useCallback((status) => {
     migrationStatusRef.current = status;
     setMigrationStatus(status);
@@ -51,6 +63,10 @@ function AuthenticatedPlanner({ userId, getToken }) {
             setSyncStatus({ type: "saved", message: "동기화됨" });
           }
         } catch (caughtError) {
+          if (isPlannerAccessDenied(caughtError)) {
+            showAccessDenied();
+            return;
+          }
           if (isPlannerVersionConflict(caughtError)) {
             conflictRef.current = true;
             setSyncStatus({ type: "conflict", message: "다른 기기의 변경 있음" });
@@ -60,7 +76,7 @@ function AuthenticatedPlanner({ userId, getToken }) {
         }
       });
     },
-    [api],
+    [api, showAccessDenied],
   );
 
   const loadPlanner = useCallback(async () => {
@@ -101,6 +117,10 @@ function AuthenticatedPlanner({ userId, getToken }) {
       );
       setLoadState((current) => ({ type: "ready", planner, key: current.key + 1 }));
     } catch (caughtError) {
+      if (isPlannerAccessDenied(caughtError)) {
+        showAccessDenied();
+        return;
+      }
       const planner = cachedPlanner ?? initialPlannerState;
       const hasConflict = isPlannerVersionConflict(caughtError);
       conflictRef.current = hasConflict;
@@ -113,7 +133,7 @@ function AuthenticatedPlanner({ userId, getToken }) {
       });
       setLoadState((current) => ({ type: "ready", planner, key: current.key + 1 }));
     }
-  }, [api, storageKey, updateMigrationStatus]);
+  }, [api, showAccessDenied, storageKey, updateMigrationStatus]);
 
   useEffect(() => {
     loadPlanner();
@@ -149,6 +169,10 @@ function AuthenticatedPlanner({ userId, getToken }) {
       setSyncStatus({ type: "saved", message: "동기화됨" });
       if (latestPlanner !== planner) enqueueSave(latestPlanner);
     } catch (caughtError) {
+      if (isPlannerAccessDenied(caughtError)) {
+        showAccessDenied();
+        return;
+      }
       if (isPlannerVersionConflict(caughtError)) {
         conflictRef.current = true;
         updateMigrationStatus("unavailable");
@@ -159,7 +183,7 @@ function AuthenticatedPlanner({ userId, getToken }) {
       updateMigrationStatus("available");
       setSyncStatus({ type: "error", message: "업데이트 실패 · 로컬 데이터 유지됨" });
     }
-  }, [api, enqueueSave, storageKey, updateMigrationStatus]);
+  }, [api, enqueueSave, showAccessDenied, storageKey, updateMigrationStatus]);
 
   const retrySync = useCallback(() => {
     if (conflictRef.current) {
@@ -174,6 +198,7 @@ function AuthenticatedPlanner({ userId, getToken }) {
   }, [enqueueSave, migrateLegacyPlanner]);
 
   if (loadState.type === "loading") return <LoadingState />;
+  if (loadState.type === "forbidden") return <AccessDeniedState />;
 
   return (
     <App
