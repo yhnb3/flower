@@ -27,6 +27,12 @@
   color: var(--ink);
 }
 
+html {
+  min-width: 320px;
+  min-height: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -35,6 +41,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  min-height: 100svh;
 }
 
 button,
@@ -56,6 +63,7 @@ textarea:focus-visible {
 
 .app-shell {
   min-height: 100vh;
+  min-height: 100svh;
   padding: 32px;
   background:
     linear-gradient(90deg, rgba(229, 207, 117, 0.14) 1px, transparent 1px),
@@ -81,6 +89,10 @@ h1 {
 
 @media (max-width: 760px) {
   .app-shell {
-    padding: 18px;
+    padding:
+      max(18px, env(safe-area-inset-top))
+      max(18px, env(safe-area-inset-right))
+      max(18px, env(safe-area-inset-bottom))
+      max(18px, env(safe-area-inset-left));
   }
 }

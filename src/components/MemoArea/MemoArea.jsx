@@ -1,7 +1,22 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useLayoutEffect, useRef } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import EmptyState from "../EmptyState/EmptyState.jsx";
 import "./MemoArea.css";
+
+function useAutosizeTextarea(ref, value) {
+  useLayoutEffect(() => {
+    const textarea = ref.current;
+    if (!textarea) return;
+
+    textarea.style.height = "auto";
+    const maxHeight = Number.parseFloat(getComputedStyle(textarea).maxHeight);
+    const nextHeight = Number.isFinite(maxHeight)
+      ? Math.min(textarea.scrollHeight, maxHeight)
+      : textarea.scrollHeight;
+    textarea.style.height = `${nextHeight}px`;
+    textarea.style.overflowY = textarea.scrollHeight > nextHeight ? "auto" : "hidden";
+  }, [ref, value]);
+}
 
 export default function MemoArea({
   memos,
@@ -16,7 +31,11 @@ export default function MemoArea({
   onCancelEdit,
   onRemove,
 }) {
+  const draftInputRef = useRef(null);
   const editInputRef = useRef(null);
+
+  useAutosizeTextarea(draftInputRef, draft);
+  useAutosizeTextarea(editInputRef, editDraft);
 
   useEffect(() => {
     if (editingMemo !== null) editInputRef.current?.focus();
@@ -26,6 +45,7 @@ export default function MemoArea({
     <section className="memo-area" aria-label="메모">
       <form className="memo-add-row" onSubmit={onAdd}>
         <textarea
+          ref={draftInputRef}
           id="memo-input"
           aria-label="새 메모"
           autoComplete="off"

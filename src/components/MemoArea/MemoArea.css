@@ -17,7 +17,7 @@
   flex: 1;
   min-width: 0;
   min-height: 40px;
-  max-height: 120px;
+  max-height: 160px;
   padding: 8px 4px;
   border: 0;
   background: transparent;
@@ -25,7 +25,8 @@
   caret-color: var(--ink);
   font-size: 16px;
   line-height: 1.45;
-  resize: vertical;
+  overflow-wrap: anywhere;
+  resize: none;
 }
 
 .memo-add-row textarea:focus,
@@ -65,7 +66,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
-  align-items: center;
+  align-items: start;
   min-height: 56px;
   padding: 4px 0 4px 12px;
   border-bottom: 1px solid rgba(166, 125, 11, 0.24);
@@ -82,7 +83,7 @@
   border: 0;
   background: transparent;
   color: var(--ink);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   line-height: 1.4;
   overflow-wrap: anywhere;
@@ -93,17 +94,21 @@
 .memo-edit-input {
   width: 100%;
   min-width: 0;
-  min-height: 40px;
+  min-height: 112px;
+  max-height: 360px;
+  max-height: min(45svh, 360px);
   padding: 6px 0;
   border: 0;
   border-bottom: 2px solid var(--line-strong);
   background: transparent;
   color: var(--ink);
   caret-color: var(--ink);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   line-height: 1.4;
-  resize: vertical;
+  overflow-wrap: anywhere;
+  -webkit-overflow-scrolling: touch;
+  resize: none;
 }
 
 .memo-area .delete-button {
@@ -119,7 +124,7 @@
 
 @media (max-width: 760px) {
   .memo-add-row {
-    align-items: stretch;
+    align-items: flex-start;
   }
 
   .memo-add-row textarea,
@@ -128,6 +133,6 @@
   }
 
   .memo-add-row button {
-    align-self: center;
+    align-self: flex-start;
   }
 }

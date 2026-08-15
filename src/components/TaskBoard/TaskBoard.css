@@ -116,7 +116,7 @@
   display: grid;
   grid-template-columns: auto 1fr auto;
   gap: 12px;
-  align-items: center;
+  align-items: start;
   min-height: 76px;
   padding: 16px;
   border: 1px solid rgba(166, 125, 11, 0.24);
@@ -235,6 +235,11 @@
   .task-column {
     min-height: 260px;
     padding: 14px;
+  }
+
+  .task-note {
+    gap: 8px;
+    padding: 12px;
   }
 }
 
