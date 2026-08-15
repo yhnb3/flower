@@ -13,8 +13,11 @@ Google 로그인과 Turso 동기화를 지원하는 React/Vite 플래너입니�
 ```bash
 npm install
 npm test
+npm run test:e2e
 npm run build
 ```
+
+`npm run test:e2e`는 로컬 플래너 모드의 Vite 서버를 자동으로 실행하고 Playwright 시나리오를 검증합니다.
 
 ## 로컬에서 전체 연동 테스트
 

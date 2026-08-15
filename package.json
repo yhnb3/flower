@@ -8,6 +8,7 @@
     "dev:local": "VITE_USE_LOCAL_PLANNER=true vite --host 127.0.0.1",
     "dev:vercel": "npx --yes vercel@58.11.0 dev",
     "test": "node --test tests/*.test.mjs",
+    "test:e2e": "node scripts/run-e2e.mjs",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1"
   },
