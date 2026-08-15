@@ -9,9 +9,9 @@ try {
   await page.goto(appUrl, { waitUntil: "networkidle" });
 
   assert.equal(
-    await page.getByRole("heading", { name: "처리되지 않은 아이템", exact: true }).count(),
+    await page.getByRole("heading", { name: "체크리스트", exact: true }).count(),
     1,
-    "the original todo board should remain available",
+    "the checklist board should remain available",
   );
 
   assert.equal(await page.getByRole("button", { name: "오늘", exact: true }).count(), 1);
@@ -33,12 +33,57 @@ try {
 
   await page.getByLabel("새 할 일").fill("브라우저 할 일 확인");
   await page.locator(".add-row").getByRole("button", { name: "추가", exact: true }).click();
-  const todoToggle = page.getByLabel("브라우저 할 일 확인 완료하기");
-  await todoToggle.click();
+  await page.getByRole("button", { name: "브라우저 할 일 확인 할 일 수정" }).click();
+  const editingTask = page.getByLabel("할 일 수정", { exact: true });
   assert.equal(
-    await page.getByLabel("브라우저 할 일 확인 미완료로 바꾸기").count(),
+    await editingTask.getAttribute("autocomplete"),
+    "off",
+    "task editing should disable browser autocomplete",
+  );
+  await editingTask.fill("수정된 브라우저 할 일");
+  await editingTask.press("Enter");
+  assert.equal(await page.getByText("수정된 브라우저 할 일", { exact: true }).count(), 1);
+
+  const todoToggle = page.getByLabel("수정된 브라우저 할 일 완료하기");
+  const uncheckedControl = await todoToggle.evaluate((button) => {
+    const hitArea = getComputedStyle(button);
+    const indicator = getComputedStyle(button, "::before");
+    return {
+      ariaPressed: button.getAttribute("aria-pressed"),
+      hitAreaWidth: hitArea.width,
+      hitAreaHeight: hitArea.height,
+      hitAreaRadius: hitArea.borderRadius,
+      indicatorContent: indicator.content,
+      indicatorWidth: indicator.width,
+      indicatorHeight: indicator.height,
+      indicatorRadius: indicator.borderRadius,
+    };
+  });
+  assert.deepEqual(
+    uncheckedControl,
+    {
+      ariaPressed: "false",
+      hitAreaWidth: "44px",
+      hitAreaHeight: "44px",
+      hitAreaRadius: "50%",
+      indicatorContent: '\"\"',
+      indicatorWidth: "28px",
+      indicatorHeight: "28px",
+      indicatorRadius: "50%",
+    },
+    "the todo toggle should use a round iOS-style indicator inside a full touch target",
+  );
+  await todoToggle.click();
+  const completedToggle = page.getByLabel("수정된 브라우저 할 일 미완료로 바꾸기");
+  assert.equal(
+    await completedToggle.count(),
     1,
     "new todo completion should keep working",
+  );
+  assert.equal(
+    await completedToggle.getAttribute("aria-pressed"),
+    "true",
+    "the completed control should expose its pressed state",
   );
 
   assert.equal(
@@ -78,11 +123,29 @@ try {
   await page.keyboard.press("Escape");
 
   const newMemo = page.getByLabel("새 메모");
-  await newMemo.fill("브라우저 메모 확인");
-  await page.locator(".memo-area").getByRole("button", { name: "추가", exact: true }).click();
-  assert.equal(await page.getByText("브라우저 메모 확인", { exact: true }).count(), 1);
+  await newMemo.fill("브라우저 메모 첫 줄");
+  await newMemo.press("Shift+Enter");
+  await newMemo.type("브라우저 메모 둘째 줄");
+  assert.equal(
+    await newMemo.inputValue(),
+    "브라우저 메모 첫 줄\n브라우저 메모 둘째 줄",
+    "Shift+Enter should insert a line break without submitting the memo",
+  );
+  await newMemo.press("Enter");
+  assert.equal(await newMemo.inputValue(), "", "Enter should submit and clear the memo draft");
+  const createdMemo = page.locator(".memo-content");
+  assert.equal(
+    await createdMemo.textContent(),
+    "브라우저 메모 첫 줄\n브라우저 메모 둘째 줄",
+    "the submitted memo should preserve Shift+Enter line breaks",
+  );
+  assert.equal(
+    await createdMemo.evaluate((memo) => getComputedStyle(memo).whiteSpace),
+    "pre-wrap",
+    "saved memo line breaks should remain visible",
+  );
 
-  await page.getByRole("button", { name: "브라우저 메모 확인 메모 수정" }).click();
+  await createdMemo.click();
   const editingMemo = page.getByLabel("메모 수정", { exact: true });
   assert.equal(
     await editingMemo.getAttribute("autocomplete"),

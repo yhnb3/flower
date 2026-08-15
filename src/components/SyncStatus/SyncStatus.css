@@ -1,0 +1,57 @@
+.sync-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper-soft);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.sync-status.is-error,
+.sync-status.is-conflict {
+  border-color: rgba(142, 69, 42, 0.38);
+  color: var(--danger);
+}
+
+.sync-status button {
+  min-height: 28px;
+  padding: 0 8px;
+  border: 1px solid currentColor;
+  border-radius: 7px;
+  background: transparent;
+  color: inherit;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.sync-status .is-spinning {
+  animation: sync-spin 1s linear infinite;
+}
+
+@media (max-width: 760px) {
+  .sync-status {
+    white-space: normal;
+  }
+
+  .sync-status button {
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sync-status .is-spinning {
+    animation: none;
+  }
+}
+
+@keyframes sync-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

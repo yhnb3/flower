@@ -1,0 +1,100 @@
+.workspace {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+}
+
+.topbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.folder-board {
+  filter: drop-shadow(var(--shadow));
+}
+
+.folder-sheet {
+  position: relative;
+  z-index: 1;
+  min-height: 520px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+}
+
+.folder-sheet::before {
+  position: absolute;
+  inset: 18px;
+  z-index: -1;
+  border: 1px dashed rgba(166, 125, 11, 0.2);
+  border-radius: 18px;
+  content: "";
+}
+
+.folder-delete-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid rgba(166, 125, 11, 0.28);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 253, 241, 0.72);
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 850;
+}
+
+.folder-bottom-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(166, 125, 11, 0.24);
+}
+
+.folder-delete-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.46;
+}
+
+@media (max-width: 760px) {
+  .topbar h1 {
+    font-size: 31px;
+  }
+
+  .topbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .topbar-actions {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .folder-sheet {
+    min-height: 640px;
+    padding: 18px;
+  }
+
+  .folder-bottom-actions {
+    margin-top: 20px;
+  }
+
+  .folder-delete-button {
+    min-height: 44px;
+  }
+}

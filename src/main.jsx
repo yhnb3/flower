@@ -1,14 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import {
-  ClerkProvider,
-  SignInButton,
-  SignUpButton,
-  UserButton,
-  useAuth,
-} from "@clerk/react";
-import { AlertCircle, Cloud, LogIn, UploadCloud, UserPlus } from "lucide-react";
+import { ClerkProvider, UserButton, useAuth } from "@clerk/react";
+import { AlertCircle } from "lucide-react";
 import App, { initialPlannerState } from "./App.jsx";
+import LoadingState from "./components/LoadingState/LoadingState.jsx";
+import MigrationControl from "./components/MigrationControl/MigrationControl.jsx";
+import PageState from "./components/PageState/PageState.jsx";
+import SignedOutState from "./components/SignedOutState/SignedOutState.jsx";
 import { createPlannerApi, isPlannerVersionConflict } from "./planner-api.js";
 import {
   getPlannerStorageKey,
@@ -21,74 +19,6 @@ import {
 
 const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 const useLocalPlanner = import.meta.env.VITE_USE_LOCAL_PLANNER === "true";
-
-function PageState({ icon: Icon, title, description, action, isLoading = false }) {
-  return (
-    <main className="app-shell auth-shell">
-      <section className="auth-card" aria-busy={isLoading || undefined}>
-        <Icon aria-hidden="true" size={32} />
-        <h1>{title}</h1>
-        <p>{description}</p>
-        {action}
-      </section>
-    </main>
-  );
-}
-
-function LoadingState() {
-  const [showSkeleton, setShowSkeleton] = useState(false);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => setShowSkeleton(true), 300);
-    return () => window.clearTimeout(timer);
-  }, []);
-
-  if (!showSkeleton) {
-    return <main className="app-shell auth-shell" aria-busy="true" aria-label="플래너 불러오는 중" />;
-  }
-
-  return (
-    <main className="app-shell auth-shell" aria-busy="true" aria-label="플래너 불러오는 중">
-      <section className="planner-skeleton">
-        <div className="skeleton-line is-title" />
-        <div className="skeleton-tabs">
-          <div />
-          <div />
-        </div>
-        <div className="skeleton-sheet">
-          <div />
-          <div />
-        </div>
-      </section>
-    </main>
-  );
-}
-
-function SignedOutState() {
-  return (
-    <PageState
-      icon={Cloud}
-      title="花 Planner"
-      description="계정을 만들거나 로그인하면 할 일과 메모가 기기 간에 안전하게 동기화됩니다."
-      action={
-        <div className="auth-actions">
-          <SignUpButton mode="modal">
-            <button className="auth-button auth-primary-button" type="button">
-              <UserPlus aria-hidden="true" size={18} />
-              계정 만들기
-            </button>
-          </SignUpButton>
-          <SignInButton mode="modal">
-            <button className="auth-button auth-secondary-button" type="button">
-              <LogIn aria-hidden="true" size={18} />
-              로그인
-            </button>
-          </SignInButton>
-        </div>
-      }
-    />
-  );
-}
 
 function AuthenticatedPlanner({ userId, getToken }) {
   const api = useMemo(() => createPlannerApi({ getToken }), [getToken]);
@@ -254,20 +184,7 @@ function AuthenticatedPlanner({ userId, getToken }) {
       syncStatus={syncStatus}
       onRetrySync={retrySync}
       migrationControl={
-        <button
-          className="legacy-update-button"
-          type="button"
-          disabled={migrationStatus !== "available"}
-          onClick={migrateLegacyPlanner}
-          title={
-            migrationStatus === "available"
-              ? "기존 브라우저 데이터를 Turso에 저장합니다"
-              : "DB가 비어 있고 기존 브라우저 데이터가 있을 때 사용할 수 있습니다"
-          }
-        >
-          <UploadCloud aria-hidden="true" size={16} />
-          {migrationStatus === "saving" ? "업데이트 중" : "DB 업데이트"}
-        </button>
+        <MigrationControl status={migrationStatus} onMigrate={migrateLegacyPlanner} />
       }
       accountControl={<UserButton />}
     />
@@ -282,22 +199,18 @@ function AuthenticatedRoot() {
   return <AuthenticatedPlanner userId={userId} getToken={getToken} />;
 }
 
-function ConfigurationState() {
-  return (
-    <PageState
-      icon={AlertCircle}
-      title="로컬 설정이 필요해요"
-      description=".env.local에 Clerk와 Turso 환경변수를 추가한 뒤 npm run dev:vercel을 실행해 주세요."
-    />
-  );
-}
-
 const root = createRoot(document.getElementById("root"));
 
 if (useLocalPlanner) {
   root.render(<App />);
 } else if (!clerkPublishableKey) {
-  root.render(<ConfigurationState />);
+  root.render(
+    <PageState
+      icon={AlertCircle}
+      title="로컬 설정이 필요해요"
+      description=".env.local에 Clerk와 Turso 환경변수를 추가한 뒤 npm run dev:vercel을 실행해 주세요."
+    />,
+  );
 } else {
   root.render(
     <ClerkProvider publishableKey={clerkPublishableKey}>

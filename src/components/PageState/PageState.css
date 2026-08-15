@@ -1,0 +1,39 @@
+.page-state-shell {
+  display: grid;
+  place-items: center;
+}
+
+.page-state-card {
+  display: grid;
+  justify-items: center;
+  width: min(440px, 100%);
+  padding: 40px 32px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.page-state-card > svg {
+  margin-bottom: 16px;
+  color: var(--line-strong);
+}
+
+.page-state-card h1 {
+  margin-bottom: 12px;
+  font-size: 30px;
+}
+
+.page-state-card p {
+  max-width: 340px;
+  margin-bottom: 24px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+@media (max-width: 760px) {
+  .page-state-card {
+    padding: 32px 20px;
+  }
+}

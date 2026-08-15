@@ -1,0 +1,74 @@
+.loading-state-shell {
+  display: grid;
+  place-items: center;
+}
+
+.planner-skeleton {
+  width: min(1120px, 100%);
+}
+
+.skeleton-line,
+.skeleton-tabs > div,
+.skeleton-sheet,
+.skeleton-sheet > div {
+  background: rgba(229, 207, 117, 0.38);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-line.is-title {
+  width: 220px;
+  height: 48px;
+  margin-bottom: 24px;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-tabs {
+  display: flex;
+  gap: 6px;
+  padding-left: 18px;
+}
+
+.skeleton-tabs > div {
+  width: 120px;
+  height: 54px;
+  border-radius: 16px 16px 0 0;
+}
+
+.skeleton-sheet {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  min-height: 520px;
+  padding: 80px 28px 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+
+.skeleton-sheet > div {
+  min-height: 320px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 253, 241, 0.72);
+}
+
+@media (max-width: 760px) {
+  .skeleton-sheet {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 640px;
+    padding: 72px 18px 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-line,
+  .skeleton-tabs > div,
+  .skeleton-sheet,
+  .skeleton-sheet > div {
+    animation: none;
+  }
+}
+
+@keyframes skeleton-pulse {
+  50% {
+    opacity: 0.55;
+  }
+}

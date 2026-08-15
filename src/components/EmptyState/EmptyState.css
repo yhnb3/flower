@@ -1,0 +1,32 @@
+.empty-state {
+  display: grid;
+  place-items: center;
+  min-height: 280px;
+  padding: 36px;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-md);
+  background: rgba(255, 253, 241, 0.62);
+  text-align: center;
+}
+
+.empty-state h3 {
+  margin: 12px 0 6px;
+  font-size: 20px;
+}
+
+.empty-state p {
+  max-width: 320px;
+  margin-bottom: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.empty-state--memo {
+  min-height: 120px;
+  padding: 20px;
+}
+
+.empty-state--compact {
+  min-height: 210px;
+  padding: 24px;
+}

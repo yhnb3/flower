@@ -1,0 +1,68 @@
+.folder-tabs {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  padding: 8px 0 0 18px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.folder-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.folder-tabs .visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.folder-tab-drag-overlay {
+  width: 120px;
+  cursor: grabbing;
+  filter: drop-shadow(0 12px 16px rgb(67 47 34 / 22%));
+  pointer-events: none;
+}
+
+.folder-tab-drag-overlay .folder-tab {
+  cursor: grabbing;
+  transform: rotate(-1.5deg) translateY(-3px);
+}
+
+.folder-add-tab {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 112px;
+  min-height: 48px;
+  margin-bottom: 4px;
+  padding: 0 12px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 14px 14px 0 0;
+  background: rgba(255, 253, 241, 0.72);
+  color: var(--muted);
+  font-weight: 850;
+}
+
+@media (max-width: 760px) {
+  .folder-tab-drag-overlay {
+    width: 106px;
+  }
+
+  .folder-add-tab {
+    width: 106px;
+  }
+}
