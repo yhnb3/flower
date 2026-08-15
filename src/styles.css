@@ -14,13 +14,15 @@
   --radius-lg: 24px;
   --radius-md: 16px;
   --radius-sm: 10px;
-  font-family:
+  --font-sans:
+    "Pretendard Variable",
     Pretendard,
     Inter,
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
+  font-family: var(--font-sans);
   background: var(--surface);
   color: var(--ink);
 }
