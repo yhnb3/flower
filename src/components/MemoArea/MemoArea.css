@@ -1,5 +1,6 @@
 .memo-area {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
   margin-top: 20px;
 }
@@ -46,6 +47,7 @@
   width: 76px;
   min-width: 68px;
   min-height: 40px;
+  margin-right: 8px;
   padding: 0 10px;
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-sm);

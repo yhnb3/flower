@@ -1,9 +1,18 @@
 import assert from "node:assert/strict";
-import { chromium } from "playwright";
+import { chromium, webkit } from "playwright";
 
 const appUrl = process.env.APP_URL ?? "http://127.0.0.1:5173/";
-const browser = await chromium.launch();
-const page = await browser.newPage();
+const browserName = process.env.E2E_BROWSER ?? "chromium";
+const browserType = { chromium, webkit }[browserName];
+
+if (!browserType) throw new Error(`Unsupported E2E browser: ${browserName}`);
+
+const browser = await browserType.launch();
+const page = await browser.newPage({ viewport: { width: 393, height: 659 } });
+
+async function getHorizontalOverflow(locator) {
+  return locator.evaluate((element) => element.scrollWidth - element.clientWidth);
+}
 
 try {
   await page.goto(appUrl, { waitUntil: "networkidle" });
@@ -91,6 +100,19 @@ try {
     1,
     "the folder sheet should include a compact memo list",
   );
+  assert.equal(
+    await getHorizontalOverflow(page.locator(".memo-area")),
+    0,
+    `${browserName} should keep the empty memo area within an iPhone Pro viewport`,
+  );
+  assert.equal(
+    await page
+      .locator(".memo-area")
+      .getByRole("button", { name: "추가", exact: true })
+      .evaluate((button) => getComputedStyle(button).marginRight),
+    "8px",
+    "the memo add button should keep space from the right edge",
+  );
 
   assert.equal(
     await page.locator(".summary-strip--compact").count(),
@@ -151,6 +173,11 @@ try {
     await editingMemo.getAttribute("autocomplete"),
     "off",
     "memo editing should disable browser autocomplete",
+  );
+  assert.equal(
+    await getHorizontalOverflow(page.locator(".memo-area")),
+    0,
+    `${browserName} should keep the memo editor within an iPhone Pro viewport`,
   );
   await editingMemo.fill("수정된 브라우저 메모");
   await editingMemo.press("Tab");
