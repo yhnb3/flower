@@ -20,6 +20,7 @@
 .auth-primary-button {
   border: 1px solid var(--line-strong);
   background: var(--paper-deep);
+  color: var(--accent-ink);
 }
 
 .auth-secondary-button {

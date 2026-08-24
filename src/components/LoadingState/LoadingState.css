@@ -11,7 +11,7 @@
 .skeleton-tabs > div,
 .skeleton-sheet,
 .skeleton-sheet > div {
-  background: rgba(229, 207, 117, 0.38);
+  background: var(--skeleton);
   animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
 
@@ -47,7 +47,7 @@
 .skeleton-sheet > div {
   min-height: 320px;
   border-radius: var(--radius-md);
-  background: rgba(255, 253, 241, 0.72);
+  background: var(--control-surface);
 }
 
 @media (max-width: 760px) {

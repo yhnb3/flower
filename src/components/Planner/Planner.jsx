@@ -5,10 +5,12 @@ import {
   readStoredPlanner,
   writeStoredPlanner,
 } from "../../planner-storage.js";
+import { readStoredTheme, writeStoredTheme } from "../../theme-preference.js";
 import FolderTabs from "../FolderTabs/FolderTabs.jsx";
 import MemoArea from "../MemoArea/MemoArea.jsx";
 import SyncStatus from "../SyncStatus/SyncStatus.jsx";
 import TaskBoard from "../TaskBoard/TaskBoard.jsx";
+import ThemeMenu from "../ThemeMenu/ThemeMenu.jsx";
 import "./Planner.css";
 
 const initialFolders = [
@@ -53,6 +55,7 @@ export default function Planner({
   const [memoEditDraft, setMemoEditDraft] = useState("");
   const [editingTask, setEditingTask] = useState(null);
   const [taskEditDraft, setTaskEditDraft] = useState("");
+  const [theme, setTheme] = useState(() => readStoredTheme());
   const hasMountedRef = useRef(false);
 
   const visibleTasks = tasks.filter((task) => task.folder === activeFolder);
@@ -224,12 +227,18 @@ export default function Planner({
     setSelectFolderDraftOnFocus(false);
   }
 
+  function changeTheme(nextTheme) {
+    setTheme(nextTheme);
+    writeStoredTheme(nextTheme);
+  }
+
   return (
-    <main className="app-shell" data-styleseed-recipe="calm-consumer">
+    <main className="app-shell" data-styleseed-recipe="calm-consumer" data-theme={theme}>
       <section className="workspace" aria-labelledby="page-title">
         <header className="topbar">
           <h1 id="page-title">花 Planner</h1>
           <div className="topbar-actions">
+            <ThemeMenu activeTheme={theme} onThemeChange={changeTheme} />
             <SyncStatus status={syncStatus} onRetry={onRetrySync} />
             {migrationControl}
             {accountControl}

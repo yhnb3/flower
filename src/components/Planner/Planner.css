@@ -36,7 +36,7 @@
   position: absolute;
   inset: 18px;
   z-index: -1;
-  border: 1px dashed rgba(166, 125, 11, 0.2);
+  border: 1px dashed var(--line-subtle);
   border-radius: 18px;
   content: "";
 }
@@ -48,9 +48,9 @@
   gap: 6px;
   min-height: 40px;
   padding: 0 12px;
-  border: 1px solid rgba(166, 125, 11, 0.28);
+  border: 1px solid var(--line-muted);
   border-radius: var(--radius-sm);
-  background: rgba(255, 253, 241, 0.72);
+  background: var(--control-surface);
   color: var(--muted);
   font-size: 14px;
   font-weight: 850;
@@ -61,7 +61,7 @@
   justify-content: flex-end;
   margin-top: 24px;
   padding-top: 16px;
-  border-top: 1px solid rgba(166, 125, 11, 0.24);
+  border-top: 1px solid var(--line-soft);
 }
 
 .folder-delete-button:disabled {

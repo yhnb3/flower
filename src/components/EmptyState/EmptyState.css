@@ -5,7 +5,7 @@
   padding: 36px;
   border: 1px dashed var(--line-strong);
   border-radius: var(--radius-md);
-  background: rgba(255, 253, 241, 0.62);
+  background: var(--quiet-surface);
   text-align: center;
 }
 

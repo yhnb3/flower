@@ -36,7 +36,7 @@
 }
 
 .memo-add-row textarea::placeholder {
-  color: rgba(117, 106, 73, 0.72);
+  color: var(--placeholder);
 }
 
 .memo-add-row button {
@@ -52,7 +52,7 @@
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-sm);
   background: var(--paper-deep);
-  color: var(--ink);
+  color: var(--accent-ink);
   font-weight: 900;
 }
 
@@ -71,12 +71,12 @@
   align-items: start;
   min-height: 56px;
   padding: 4px 0 4px 12px;
-  border-bottom: 1px solid rgba(166, 125, 11, 0.24);
+  border-bottom: 1px solid var(--line-soft);
   background: transparent;
 }
 
 .memo-item:first-child {
-  border-top: 1px solid rgba(166, 125, 11, 0.24);
+  border-top: 1px solid var(--line-soft);
 }
 
 .memo-content {
@@ -118,9 +118,9 @@
   place-items: center;
   width: 44px;
   height: 44px;
-  border: 1px solid rgba(166, 125, 11, 0.28);
+  border: 1px solid var(--line-muted);
   border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.52);
+  background: var(--check-surface);
   color: var(--muted);
 }
 

@@ -5,18 +5,34 @@
   --paper-tab: #ffe789;
   --paper-soft: #fffdf1;
   --paper-soft-translucent: rgba(255, 253, 241, 0.82);
+  --control-surface: rgba(255, 253, 241, 0.72);
+  --column-surface: rgba(255, 253, 241, 0.48);
+  --quiet-surface: rgba(255, 253, 241, 0.62);
+  --completed-surface: rgba(255, 253, 241, 0.64);
+  --check-surface: rgba(255, 255, 255, 0.52);
+  --check-inset: rgba(255, 248, 215, 0.72);
   --ink: #262112;
+  --accent-ink: #262112;
   --ink-overlay: rgba(38, 33, 18, 0.36);
   --muted: #756a49;
+  --placeholder: rgba(117, 106, 73, 0.72);
   --line: #e5cf75;
   --line-strong: #cfaa32;
   --line-soft: rgba(166, 125, 11, 0.24);
   --line-muted: rgba(166, 125, 11, 0.28);
+  --line-subtle: rgba(166, 125, 11, 0.2);
+  --line-faint: rgba(166, 125, 11, 0.22);
   --danger: #7b3e28;
+  --danger-line: rgba(142, 69, 42, 0.38);
   --surface: #fffaf0;
   --shadow: 0 18px 40px rgba(104, 84, 25, 0.14);
   --shadow-modal: 0 22px 60px rgba(67, 47, 34, 0.28);
   --shadow-drag-color: rgba(67, 47, 34, 0.24);
+  --note-shadow: 0 6px 0 rgba(207, 170, 50, 0.12);
+  --focus-ring: rgba(166, 125, 11, 0.42);
+  --grid-line-x: rgba(229, 207, 117, 0.14);
+  --grid-line-y: rgba(229, 207, 117, 0.12);
+  --skeleton: rgba(229, 207, 117, 0.38);
   --radius-lg: 24px;
   --radius-md: 16px;
   --radius-sm: 10px;
@@ -63,7 +79,7 @@ button {
 button:focus-visible,
 input:focus-visible,
 textarea:focus-visible {
-  outline: 3px solid rgba(166, 125, 11, 0.42);
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
 }
 
@@ -72,10 +88,73 @@ textarea:focus-visible {
   min-height: 100svh;
   padding: 32px;
   background:
-    linear-gradient(90deg, rgba(229, 207, 117, 0.14) 1px, transparent 1px),
-    linear-gradient(180deg, rgba(229, 207, 117, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line-x) 1px, transparent 1px),
+    linear-gradient(180deg, var(--grid-line-y) 1px, transparent 1px),
     var(--surface);
   background-size: 28px 28px;
+  color: var(--ink);
+}
+
+.app-shell[data-theme]:not([data-theme="light"]) {
+  color-scheme: dark;
+  --paper-soft-translucent: color-mix(in srgb, var(--paper-soft) 84%, transparent);
+  --control-surface: color-mix(in srgb, var(--paper-soft) 88%, var(--surface));
+  --column-surface: color-mix(in srgb, var(--paper-soft) 58%, var(--paper));
+  --quiet-surface: color-mix(in srgb, var(--paper-soft) 68%, var(--paper));
+  --completed-surface: color-mix(in srgb, var(--paper-soft) 62%, var(--paper));
+  --check-surface: color-mix(in srgb, var(--ink) 8%, transparent);
+  --check-inset: color-mix(in srgb, var(--paper) 78%, transparent);
+  --placeholder: color-mix(in srgb, var(--muted) 78%, transparent);
+  --line-soft: color-mix(in srgb, var(--line-strong) 42%, transparent);
+  --line-muted: color-mix(in srgb, var(--line-strong) 52%, transparent);
+  --line-subtle: color-mix(in srgb, var(--line-strong) 34%, transparent);
+  --line-faint: color-mix(in srgb, var(--line-strong) 38%, transparent);
+  --danger-line: color-mix(in srgb, var(--danger) 52%, transparent);
+  --focus-ring: color-mix(in srgb, var(--paper-deep) 62%, transparent);
+  --grid-line-x: color-mix(in srgb, var(--line) 22%, transparent);
+  --grid-line-y: color-mix(in srgb, var(--line) 16%, transparent);
+  --skeleton: color-mix(in srgb, var(--line) 42%, transparent);
+  --note-shadow: 0 6px 0 color-mix(in srgb, var(--paper-deep) 13%, transparent);
+}
+
+.app-shell[data-theme="light"] {
+  color-scheme: light;
+}
+
+.app-shell[data-theme="navy"] {
+  --surface: #0c1218;
+  --paper: #131c25;
+  --paper-deep: #67d6c0;
+  --paper-tab: #1d2a34;
+  --paper-soft: #18232d;
+  --ink: #edf6f7;
+  --accent-ink: #09231e;
+  --muted: #9bafb7;
+  --line: #2c3d48;
+  --line-strong: #59737e;
+  --danger: #ff9c93;
+  --ink-overlay: rgba(2, 8, 13, 0.68);
+  --shadow: 0 18px 44px rgba(0, 0, 0, 0.34);
+  --shadow-modal: 0 22px 60px rgba(0, 0, 0, 0.54);
+  --shadow-drag-color: rgba(0, 0, 0, 0.48);
+}
+
+.app-shell[data-theme="mauve"] {
+  --surface: #151116;
+  --paper: #211a22;
+  --paper-deep: #efa6b6;
+  --paper-tab: #302431;
+  --paper-soft: #281f29;
+  --ink: #f7eef4;
+  --accent-ink: #321822;
+  --muted: #b9a6b2;
+  --line: #463748;
+  --line-strong: #80637a;
+  --danger: #ffa291;
+  --ink-overlay: rgba(12, 5, 11, 0.7);
+  --shadow: 0 18px 44px rgba(0, 0, 0, 0.34);
+  --shadow-modal: 0 22px 60px rgba(0, 0, 0, 0.54);
+  --shadow-drag-color: rgba(0, 0, 0, 0.48);
 }
 
 h1,
