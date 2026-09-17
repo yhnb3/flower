@@ -38,6 +38,23 @@ try {
 
   const folderTabsNav = page.locator(".folder-tabs");
   const folderTabs = page.locator(".folder-tabs-scroll");
+  const keyboardDragOverlay = page.locator(".folder-tab-drag-overlay .folder-tab");
+
+  async function moveFocusedFolderWithKeyboard(direction, expectedLabels) {
+    await page.keyboard.press("Space");
+    await keyboardDragOverlay.waitFor({ state: "visible" });
+    await page.keyboard.press(direction);
+    await page.keyboard.press("Space");
+    await keyboardDragOverlay.waitFor({ state: "hidden" });
+    await page.waitForFunction(
+      (labels) =>
+        [...document.querySelectorAll(".folder-tabs-scroll .folder-tab[data-folder-id] span")]
+          .slice(0, labels.length)
+          .every((label, index) => label.textContent === labels[index]),
+      expectedLabels,
+    );
+  }
+
   assert.equal(
     await page.getByRole("button", { name: "폴더 순서 변경" }).count(),
     0,
@@ -152,9 +169,7 @@ try {
   );
 
   await folderOne.focus();
-  await page.keyboard.press("Space");
-  await page.keyboard.press("ArrowLeft");
-  await page.keyboard.press("Space");
+  await moveFocusedFolderWithKeyboard("ArrowLeft", ["오늘", "폴더 2", "폴더 1", "폴더 3"]);
   assert.deepEqual(
     (await folderTabs.locator(".folder-tab[data-folder-id] span").allTextContents()).slice(0, 4),
     ["오늘", "폴더 2", "폴더 1", "폴더 3"],
@@ -173,9 +188,7 @@ try {
   );
 
   await page.waitForTimeout(300);
-  await page.keyboard.press("Space");
-  await page.keyboard.press("ArrowRight");
-  await page.keyboard.press("Space");
+  await moveFocusedFolderWithKeyboard("ArrowRight", ["오늘", "폴더 2", "폴더 3", "폴더 1"]);
   assert.deepEqual(
     (await folderTabs.locator(".folder-tab[data-folder-id] span").allTextContents()).slice(0, 4),
     ["오늘", "폴더 2", "폴더 3", "폴더 1"],
