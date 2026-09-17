@@ -1,11 +1,14 @@
 ---
 name: ss-reference
-description: Compile screenshots, URLs, Figma exports, or an existing UI into a project-local StyleSeed output grammar with evidence, tokens, confidence, anti-patterns, and a validation screen. Use when the user supplies a design reference that StyleSeed does not already model.
+description: Compile screenshots, URLs, Figma exports, or an existing UI into a project-local output grammar. Use when the user supplies a design reference StyleSeed does not already model.
 argument-hint: "[reference paths or URLs] [--name slug]"
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash, WebFetch
 ---
 
 # Compile references into a design grammar
+## Registry-first artifact boundary
+
+When `.styleseed/project.json` and `.styleseed/artifacts/index.json` exist, resolve the requested artifact ID first, then read only `.styleseed/bundles/<artifact-id>.md` and `.styleseed/manifests/<artifact-id>.json`. Never fall back to the global legacy bundle for a registry project. Legacy projects may use `.styleseed/effective-rules.md` only when no registry exists.
 
 Do not merely imitate the supplied screen. Read `PRODUCT-PRINCIPLES.md`, `RULESETS.md`,
 `ADAPTERS.md`, and `REFERENCE-COMPILER.md`, then execute the compiler pipeline in full.
@@ -20,9 +23,13 @@ Do not merely imitate the supplied screen. Read `PRODUCT-PRINCIPLES.md`, `RULESE
 4. Resolve contradictions instead of averaging them. Explain any material choice briefly.
 5. Choose the nearest built-in fallback grammar and adapter, then compile the project artifacts required by
    `REFERENCE-COMPILER.md` under `.styleseed/rulesets/<slug>/`.
-6. Update `STYLESEED.md` to select `reference:<slug>` while preserving bounded brand choices.
+6. Select `reference:<slug>` in the chosen artifact's project-owned configuration for registry
+   projects; only when neither registry file exists, update the legacy `STYLESEED.md`.
+   Preserve bounded brand choices. A partial or invalid registry is an error, not a fallback.
 7. Validate transfer: apply the grammar to one representative screen not present in the source
-   set, run `/ss-score`, then `/ss-verify` if renderable. Fix and repeat to the gate floor.
+   set, run `/ss-score`, then `/ss-verify` if renderable. Within the authorized validation scope,
+   fix and repeat until passing or three correction passes per gate, counting delegated passes.
+   Do not reset the budget by switching skills; report actual scores and unresolved failures.
 8. Report what was learned, what remains low-confidence, where the artifacts live, and the
    validation result.
 

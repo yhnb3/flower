@@ -1,11 +1,14 @@
 ---
 name: ss-dial
-description: Turn ONE design axis up or down as a coordinated, deterministic transform — "denser", "sharper corners", "more muted", "bolder", "flatter", "livelier". Not a vibe the model reinterprets each time; a defined ramp that moves many tokens together, respects the guardrails (8px grid, a11y floors, single accent, nested-radius), updates the lock, and re-runs the gate. Use this when a human saying "more X" would otherwise get an inconsistent one-off.
+description: Turn one design axis up or down — "denser", "bolder", "flatter", "livelier", "sharper corners". Use for a single-axis change, not a mood word (those go to /ss-restyle); updates the lock and re-runs the gate.
 argument-hint: "<axis> <direction>  — e.g. \"density denser\", \"radius sharper\", \"color more-muted\", \"weight bolder\""
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash
 ---
 
 # Dial an axis
+## Registry-first artifact boundary
+
+When `.styleseed/project.json` and `.styleseed/artifacts/index.json` exist, resolve the requested artifact ID first, then read only `.styleseed/bundles/<artifact-id>.md` and `.styleseed/manifests/<artifact-id>.json`. Never fall back to the global legacy bundle for a registry project. Legacy projects may use `.styleseed/effective-rules.md` only when no registry exists.
 
 "Make it more minimal" is something you can just *say* — the model already reads plain
 language. A skill only earns its place where **one word must move many tokens at once, in a

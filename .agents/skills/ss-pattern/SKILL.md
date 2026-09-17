@@ -6,6 +6,9 @@ allowed-tools: Read, Write, Edit, Grep, Glob, Bash
 ---
 
 # UI Pattern Generator
+## Registry-first artifact boundary
+
+When `.styleseed/project.json` and `.styleseed/artifacts/index.json` exist, resolve the requested artifact ID first, then read only `.styleseed/bundles/<artifact-id>.md` and `.styleseed/manifests/<artifact-id>.json`. Never fall back to the global legacy bundle for a registry project. Legacy projects may use `.styleseed/effective-rules.md` only when no registry exists.
 
 ## When NOT to use
 
@@ -40,7 +43,12 @@ Description: $ARGUMENTS
 
 ## Instructions
 
-1. Read `.styleseed/effective-rules.md` and `.styleseed/manifest.json`. Resolve first when stale.
+1. If either registry file exists, require a complete valid registry. Resolve the selected
+   artifact with `--artifact <id>` and read only `.styleseed/bundles/<id>.md` and
+   `.styleseed/manifests/<id>.json`. Missing/stale output needs a scoped resolve and re-check;
+   invalid configuration is not permission to fall back or restart setup.
+   Only when neither registry file exists, resolve the legacy `STYLESEED.md` and read
+   `.styleseed/effective-rules.md` and `.styleseed/manifest.json`.
    Then inspect:
    - `components/ui/` for available primitives
    - `components/patterns/` for existing patterns

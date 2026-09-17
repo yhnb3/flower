@@ -9,8 +9,16 @@
 - Grammar fallback: consumer-service
 - Reference confidence: n/a
 - Brand recipe: calm-consumer
+- Palette recipe: quiet-mineral
+- Key color: #F3C84D
+- Palette character: calm
+- Palette mode: light
+- Palette harmony: tonal
+- Surface temperature: warm
 - Aesthetic profile: none
 - Skin: custom
+- Theme variants: project-owned light, navy, and mauve semantic tokens; generated palette guides the default light theme only
+- Overview palette: fixed iPhone-keyboard-inspired neutral surfaces across every theme; scoped to the unfinished smart tab and overview only
 - Primary action: #F3C84D
 - Font: Pretendard
 - Radius: soft
@@ -19,4 +27,4 @@
 - Motion: Spring restrained
 - Imagery/data role: folder tabs organize personal task state; no decorative imagery
 - Signature move: a single open file-folder board with post-it task notes as the focal point
-- Locked: 2026-08-03
+- Locked: 2026-09-17

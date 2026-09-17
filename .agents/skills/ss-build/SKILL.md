@@ -1,25 +1,37 @@
 ---
 name: ss-build
-description: Build a screen with StyleSeed's composed design method — choose or compile an output grammar, apply a brand recipe plus domain/page/profile/lock constraints, then run the code and pixel gates before presenting.
+description: Build a screen with StyleSeed's composed method, then run the code and pixel gates before presenting. Use when building or rebuilding a screen; sets up the project first if needed.
 argument-hint: "[what to build]"
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash, WebFetch
 ---
 
 # Build with the composed StyleSeed method
+## Registry-first artifact boundary
+
+When `.styleseed/project.json` and `.styleseed/artifacts/index.json` exist, resolve the requested artifact ID first, then read only `.styleseed/bundles/<artifact-id>.md` and `.styleseed/manifests/<artifact-id>.json`. Never fall back to the global legacy bundle for a registry project. Legacy projects may use `.styleseed/effective-rules.md` only when no registry exists.
 
 The build method is the product. Score and screenshots are auxiliary evidence, not the source
 of design judgment.
 
 ## Step 1 — Establish the rule set before code
 
-If `STYLESEED.md` does not exist, run `/ss-setup` and write it before UI code. If the user
-supplied a visual reference that the selected built-in grammar does not capture, run
-`/ss-reference` first. Never reduce an unfamiliar reference to a palette swap.
+If either `.styleseed/project.json` or `.styleseed/artifacts/index.json` exists, require a
+complete, valid registry and resolve the requested artifact with the installed resolver's
+`scripts/resolve-context.mjs --project-root . --artifact <artifact-id> --agent <agent>`.
+Read `.styleseed/bundles/<artifact-id>.md` and preserve `.styleseed/manifests/<artifact-id>.json`
+as provenance. Do not create `STYLESEED.md`, restart setup, or use a legacy bundle because a
+registry is incomplete, invalid, or lacks a compiled output. Resolve missing scope with the user.
+For changes spanning multiple artifacts, resolve and check each affected artifact separately.
 
-Then invoke `/ss-resolve` (Claude Code) or `$ss-resolve` (Codex), or run its bundled
-`scripts/resolve-context.mjs --project-root . --from-lock STYLESEED.md --agent <agent>`.
-Read `.styleseed/effective-rules.md` and preserve `.styleseed/manifest.json` as the provenance
-record. Do not load `llms-full.txt` after resolution succeeds.
+Only when neither registry file exists, use the legacy path: if `STYLESEED.md` is missing,
+run `/ss-setup` before UI code; otherwise preserve it. Invoke `/ss-resolve` (Claude Code) or
+`$ss-resolve` (Codex) with `--from-lock STYLESEED.md --agent <agent>`, read
+`.styleseed/effective-rules.md`, and preserve `.styleseed/manifest.json`.
+
+If a supplied visual reference is not represented by the selected grammar, use `/ss-reference`
+within the selected project boundary. Never reduce an unfamiliar reference to a palette swap or
+replace approved project choices without human approval. Do not load `llms-full.txt` after
+resolution succeeds.
 
 ## Step 2 — Compose, do not improvise
 
@@ -52,7 +64,9 @@ accessibility.
 
 Run `/ss-score` on the actual implementation. The score must name the effective rule set and
 check both core invariants and grammar-specific tells. Fix the highest-gain failures and
-re-score, up to roughly three passes, until ≥80. If it cannot pass, report the real blocker.
+re-score for at most three correction passes, stopping earlier on ≥80. Prioritize broken flows
+and core failures before optional score gains. If it cannot pass, report the actual score and
+remaining failures; do not restart the pass budget by invoking a different skill.
 
 ## Step 5 — Pixel gate loop
 
@@ -68,7 +82,7 @@ Report:
 - final code score;
 - visual verification status and viewport;
 - material fixes made by the gates;
-- `STYLESEED.md` and any compiled grammar path.
+- project/artifact configuration paths (or legacy `STYLESEED.md`) and any compiled grammar path.
 
 ## Rules
 

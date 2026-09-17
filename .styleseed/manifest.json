@@ -1,23 +1,69 @@
 {
   "schemaVersion": 1,
-  "engineVersion": "3.2.0",
-  "generatedAt": "2026-08-03T14:20:10.243Z",
+  "engineVersion": "4.2.0",
+  "engineRevision": "sha256:2ac39abb22417fa30964c3bd89667231ee18a5ae699aef9b588273f094606444",
+  "generatedAt": "2026-09-17T10:59:32.938Z",
   "selection": {
     "agent": "codex",
     "grammar": "consumer-service",
     "grammarSource": "built-in:consumer-service",
+    "referenceContract": null,
     "fallback": "consumer-service",
     "adapter": "product-ui",
     "domain": "productivity",
     "page": "list",
     "recipe": "calm-consumer",
     "recipeSelection": "calm-consumer",
+    "palette": "quiet-mineral",
+    "paletteSelection": "quiet-mineral",
+    "paletteGeneration": {
+      "keyColor": "#F3C84D",
+      "mode": "light",
+      "character": "calm",
+      "harmony": "tonal",
+      "temperature": "warm"
+    },
     "profile": "none"
   },
   "bundle": {
+    "kind": "bundle",
     "path": ".styleseed/effective-rules.md",
-    "sha256": "1afaa6a226330c7b1c36352573df2b8f571ca41c7237d84d6b91b050e02531ad",
-    "bytes": 14512
+    "sha256": "f32bab50aa69963058d702e6d75c3cd20ce3fa67f0a5e4c076c7da1756421d05",
+    "bytes": 19983
+  },
+  "outputs": [
+    {
+      "kind": "bundle",
+      "path": ".styleseed/effective-rules.md",
+      "sha256": "f32bab50aa69963058d702e6d75c3cd20ce3fa67f0a5e4c076c7da1756421d05",
+      "bytes": 19983
+    },
+    {
+      "kind": "palette-json",
+      "path": ".styleseed/palette.json",
+      "sha256": "e634fc3e915481d15c7592ced376a2cb56d4619b008e51a71ec35ae3a3012da1",
+      "bytes": 5900
+    },
+    {
+      "kind": "palette-css",
+      "path": ".styleseed/palette.css",
+      "sha256": "69c38af9873e9fa6dd39401c9d79fdac45cb43d82bab226ae45a677fdc23fa98",
+      "bytes": 1157
+    }
+  ],
+  "palette": {
+    "json": {
+      "kind": "palette-json",
+      "path": ".styleseed/palette.json",
+      "sha256": "e634fc3e915481d15c7592ced376a2cb56d4619b008e51a71ec35ae3a3012da1",
+      "bytes": 5900
+    },
+    "css": {
+      "kind": "palette-css",
+      "path": ".styleseed/palette.css",
+      "sha256": "69c38af9873e9fa6dd39401c9d79fdac45cb43d82bab226ae45a677fdc23fa98",
+      "bytes": 1157
+    }
   },
   "sources": [
     {
@@ -27,8 +73,8 @@
     },
     {
       "id": "core",
-      "sha256": "041d55d2a32c8e3965efeb7c743e01fd2b90c64cf21811426d826d62409dcf12",
-      "bytes": 4435
+      "sha256": "b8386021967bb5cea954dbe3b3f8c36574457457d5e4bbe7277b5218a539af54",
+      "bytes": 7968
     },
     {
       "id": "grammar",
@@ -56,9 +102,14 @@
       "bytes": 1181
     },
     {
+      "id": "palette",
+      "sha256": "db54f8b04c17cbb6b24708270bda60dab17705415f3dfc882ad040fe9aea1b35",
+      "bytes": 2188
+    },
+    {
       "id": "lock",
-      "sha256": "675194dc78bdb66d1dd1c40c2bdd47a611ec1fa0c064b13850692c3324baf2c1",
-      "bytes": 842
+      "sha256": "f9468cf3a9c403d54f62c2c0e82450a751d5d608cf2640079cf3e7096774ce67",
+      "bytes": 380
     },
     {
       "id": "craft",
