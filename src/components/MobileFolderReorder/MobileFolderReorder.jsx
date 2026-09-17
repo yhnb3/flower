@@ -38,6 +38,7 @@ export default function MobileFolderReorder({
   folders,
   isOpen,
   announcement,
+  returnFocusRef,
   onClose,
   onDragEnd,
 }) {
@@ -50,14 +51,15 @@ export default function MobileFolderReorder({
     const dialog = dialogRef.current;
     if (!isOpen || !dialog) return undefined;
 
-    previousFocusRef.current = document.activeElement;
+    previousFocusRef.current = returnFocusRef.current ?? document.activeElement;
     if (!dialog.open) dialog.showModal();
     closeButtonRef.current?.focus();
     return () => {
+      const previousFocus = previousFocusRef.current;
       if (dialog.open) dialog.close();
-      previousFocusRef.current?.focus({ preventScroll: true });
+      window.requestAnimationFrame(() => previousFocus?.focus({ preventScroll: true }));
     };
-  }, [isOpen]);
+  }, [isOpen, returnFocusRef]);
 
   useEffect(() => {
     if (!folderToRefocus) return;

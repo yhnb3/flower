@@ -1,14 +1,12 @@
 import assert from "node:assert/strict";
-import { chromium, webkit } from "playwright";
+import { browserName, browserType } from "./e2e-browser.mjs";
 
 const appUrl = process.env.APP_URL ?? "http://127.0.0.1:5173/";
-const browserName = process.env.E2E_BROWSER ?? "chromium";
-const browserType = { chromium, webkit }[browserName];
-
-if (!browserType) throw new Error(`Unsupported E2E browser: ${browserName}`);
-
 const browser = await browserType.launch();
-const page = await browser.newPage({ viewport: { width: 393, height: 659 } });
+const page = await browser.newPage({
+  viewport: { width: 393, height: 659 },
+  reducedMotion: "no-preference",
+});
 
 async function getHorizontalOverflow(locator) {
   return locator.evaluate((element) => element.scrollWidth - element.clientWidth);
@@ -16,6 +14,29 @@ async function getHorizontalOverflow(locator) {
 
 try {
   await page.goto(appUrl, { waitUntil: "networkidle" });
+
+  for (const { inputLabel, formSelector } of [
+    { inputLabel: "새 메모", formSelector: ".memo-add-row" },
+    { inputLabel: "새 할 일", formSelector: ".add-row" },
+  ]) {
+    await page.getByLabel(inputLabel).focus();
+    const focusIndicator = await page.locator(formSelector).evaluate((form) => {
+      const styles = getComputedStyle(form);
+      return {
+        outlineStyle: styles.outlineStyle,
+        outlineWidth: Number.parseFloat(styles.outlineWidth),
+      };
+    });
+    assert.equal(
+      focusIndicator.outlineStyle,
+      "solid",
+      `${inputLabel} composer should expose a visible keyboard focus indicator`,
+    );
+    assert.ok(
+      focusIndicator.outlineWidth >= 2,
+      `${inputLabel} composer focus indicator should be clearly visible`,
+    );
+  }
 
   assert.equal(
     await page.getByRole("heading", { name: "체크리스트", exact: true }).count(),
@@ -35,6 +56,23 @@ try {
     "first-time users should not receive sample tasks",
   );
   assert.equal(
+    await page.locator(".task-column:has(.empty-state--compact)").count(),
+    2,
+    "both empty task columns should use the compact presentation",
+  );
+  for (const height of await page
+    .locator(".task-column:has(.empty-state--compact)")
+    .evaluateAll((columns) =>
+      columns.map((column) => Number.parseFloat(getComputedStyle(column).minHeight)),
+    )) {
+    assert.ok(height <= 220, "mobile empty task columns should not reserve unused height");
+  }
+  for (const height of await page.locator(".empty-state--compact").evaluateAll((states) =>
+    states.map((state) => Number.parseFloat(getComputedStyle(state).minHeight)),
+  )) {
+    assert.ok(height <= 180, "mobile task empty states should stay compact");
+  }
+  assert.equal(
     await page.locator(".memo-item").count(),
     0,
     "first-time users should not receive sample memos",
@@ -52,6 +90,20 @@ try {
   await editingTask.fill("수정된 브라우저 할 일");
   await editingTask.press("Enter");
   assert.equal(await page.getByText("수정된 브라우저 할 일", { exact: true }).count(), 1);
+
+  const taskNote = page.locator(".task-note").first();
+  await taskNote.locator("button.task-copy").hover();
+  await page.waitForTimeout(200);
+  assert.equal(
+    await taskNote.evaluate((note) => getComputedStyle(note).transform),
+    "none",
+    "hovering an editable title should not lift the whole task card",
+  );
+  assert.match(
+    await taskNote.evaluate((note) => getComputedStyle(note).boxShadow),
+    /0px 3px 0px/,
+    "task cards should use the restrained note elevation",
+  );
 
   const todoToggle = page.getByLabel("수정된 브라우저 할 일 완료하기");
   const uncheckedControl = await todoToggle.evaluate((button) => {

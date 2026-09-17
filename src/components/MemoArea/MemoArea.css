@@ -35,6 +35,12 @@
   outline: 0;
 }
 
+.memo-add-row:focus-within {
+  border-radius: var(--radius-sm);
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
 .memo-add-row textarea::placeholder {
   color: var(--placeholder);
 }

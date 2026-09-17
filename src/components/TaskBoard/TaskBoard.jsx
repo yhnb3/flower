@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from "react";
-import { Check, Clock3, Plus, Trash2 } from "lucide-react";
+import React from "react";
+import { Check, Clock3, Plus } from "lucide-react";
 import EmptyState from "../EmptyState/EmptyState.jsx";
+import TaskItem from "../TaskItem/TaskItem.jsx";
 import "./TaskBoard.css";
 
 export default function TaskBoard({
@@ -17,7 +18,6 @@ export default function TaskBoard({
   onToggle,
   onRemove,
 }) {
-  const editInputRef = useRef(null);
   const openTasks = tasks.filter((task) => !task.done);
   const doneTasks = tasks.filter((task) => task.done);
   const columns = [
@@ -38,10 +38,6 @@ export default function TaskBoard({
       emptyBody: "왼쪽 아이템을 체크하면 이쪽으로 이동합니다.",
     },
   ];
-
-  useEffect(() => {
-    if (editingTask !== null) editInputRef.current?.focus();
-  }, [editingTask]);
 
   return (
     <>
@@ -81,61 +77,18 @@ export default function TaskBoard({
             ) : (
               <ul className="task-stack" aria-label={column.title}>
                 {column.tasks.map((task) => (
-                  <li className={`task-note ${task.done ? "is-done" : ""}`} key={task.id}>
-                    <button
-                      className="check-button"
-                      type="button"
-                      aria-pressed={task.done}
-                      aria-label={`${task.title} ${task.done ? "미완료로 바꾸기" : "완료하기"}`}
-                      onClick={() => onToggle(task.id)}
-                    >
-                      {task.done ? <Check aria-hidden="true" size={18} /> : null}
-                    </button>
-                    {!task.done && editingTask === task.id ? (
-                      <input
-                        ref={editInputRef}
-                        className="task-edit-input"
-                        aria-label="할 일 수정"
-                        autoComplete="off"
-                        maxLength={500}
-                        value={editDraft}
-                        onChange={(event) => onEditDraftChange(event.target.value)}
-                        onBlur={onCommitEdit}
-                        onKeyDown={(event) => {
-                          if (event.key === "Escape") {
-                            event.preventDefault();
-                            onCancelEdit();
-                          }
-                          if (event.key === "Enter" && !event.nativeEvent.isComposing) {
-                            event.preventDefault();
-                            onCommitEdit();
-                          }
-                        }}
-                      />
-                    ) : task.done ? (
-                      <div className="task-copy">
-                        <span>{task.title}</span>
-                      </div>
-                    ) : (
-                      <button
-                        className="task-copy"
-                        type="button"
-                        onClick={() => onStartEditing(task)}
-                        aria-label={`${task.title} 할 일 수정`}
-                        title="클릭해서 할 일 수정"
-                      >
-                        <span>{task.title}</span>
-                      </button>
-                    )}
-                    <button
-                      className="delete-button"
-                      type="button"
-                      aria-label={`${task.title} 삭제`}
-                      onClick={() => onRemove(task.id)}
-                    >
-                      <Trash2 aria-hidden="true" size={18} />
-                    </button>
-                  </li>
+                  <TaskItem
+                    key={task.id}
+                    task={task}
+                    isEditing={!task.done && editingTask === task.id}
+                    editDraft={editDraft}
+                    onEditDraftChange={onEditDraftChange}
+                    onStartEditing={onStartEditing}
+                    onCommitEdit={onCommitEdit}
+                    onCancelEdit={onCancelEdit}
+                    onToggle={onToggle}
+                    onRemove={onRemove}
+                  />
                 ))}
               </ul>
             )}

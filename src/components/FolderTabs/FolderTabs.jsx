@@ -29,8 +29,15 @@ function scrollFolderTabsOnWheel(event) {
   const maxScrollLeft = tabs.scrollWidth - tabs.clientWidth;
   if (maxScrollLeft <= 0) return;
 
-  const wheelDelta =
+  const dominantDelta =
     Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+  const deltaScale =
+    event.deltaMode === WheelEvent.DOM_DELTA_LINE
+      ? 16
+      : event.deltaMode === WheelEvent.DOM_DELTA_PAGE
+        ? tabs.clientWidth
+        : 1;
+  const wheelDelta = dominantDelta * deltaScale;
   const nextScrollLeft = Math.min(maxScrollLeft, Math.max(0, tabs.scrollLeft + wheelDelta));
   if (nextScrollLeft === tabs.scrollLeft) return;
 
@@ -41,10 +48,13 @@ function scrollFolderTabsOnWheel(event) {
 export default function FolderTabs({
   folders,
   activeFolder,
+  isOverviewActive,
+  openTaskCount,
   editingFolder,
   folderDraft,
   selectFolderDraftOnFocus,
   onFolderDraftChange,
+  onOpenOverview,
   onSelectFolder,
   onStartEditingFolder,
   onCommitFolderName,
@@ -54,6 +64,7 @@ export default function FolderTabs({
 }) {
   const tabsRef = useRef(null);
   const editInputRef = useRef(null);
+  const mobileReorderTriggerRef = useRef(null);
   const isMobileReorderLayout = useMobileReorderLayout();
   const [isMobileReorderOpen, setIsMobileReorderOpen] = useState(false);
   const [reorderAnnouncement, setReorderAnnouncement] = useState("");
@@ -109,9 +120,24 @@ export default function FolderTabs({
 
   return (
     <>
-      {isMobileReorderLayout && folders.length > 1 ? (
-        <div className="folder-tabs-mobile-tools">
+      <div
+        className={`folder-tabs-mobile-tools ${
+          isMobileReorderLayout ? "is-coarse-pointer" : ""
+        }`}
+      >
+        <button
+          className={`folder-overview-mobile ${isOverviewActive ? "is-active" : ""}`}
+          type="button"
+          onClick={onOpenOverview}
+          aria-current={isOverviewActive ? "page" : undefined}
+          aria-label={`미완료 ${openTaskCount}개 모아보기`}
+        >
+          미완료
+          <strong>{openTaskCount}</strong>
+        </button>
+        {isMobileReorderLayout && folders.length > 1 ? (
           <button
+            ref={mobileReorderTriggerRef}
             type="button"
             aria-label="폴더 순서 변경"
             aria-haspopup="dialog"
@@ -120,35 +146,49 @@ export default function FolderTabs({
             <ArrowUpDown aria-hidden="true" size={17} />
             순서 변경
           </button>
-        </div>
-      ) : null}
+        ) : null}
+      </div>
 
       <DragDropProvider sensors={folderTabSensors} onDragEnd={handleDragEnd}>
-        <nav ref={tabsRef} className="folder-tabs" aria-label="할 일 폴더">
-          <span className="visually-hidden" aria-live="polite">
-            {reorderAnnouncement}
-          </span>
-          {folders.map((folder, folderIndex) => (
-            <SortableFolderTab
-              key={folder.id}
-              folder={folder}
-              index={folderIndex}
-              dragDisabled={isMobileReorderLayout}
-              isActive={activeFolder === folder.id}
-              isEditing={editingFolder === folder.id}
-              folderDraft={folderDraft}
-              editInputRef={editInputRef}
-              onFolderDraftChange={onFolderDraftChange}
-              onSelectFolder={onSelectFolder}
-              onStartEditingFolder={onStartEditingFolder}
-              onCommitFolderName={onCommitFolderName}
-              onCancelFolderEdit={onCancelFolderEdit}
-            />
-          ))}
-          <button className="folder-add-tab" type="button" onClick={onAddFolder}>
-            <Plus aria-hidden="true" size={18} />
-            새 폴더
+        <nav className="folder-tabs" aria-label="할 일 보기 및 폴더">
+          <button
+            className={`folder-tab-wrap folder-tab folder-overview-tab ${
+              isOverviewActive ? "is-active" : ""
+            }`}
+            type="button"
+            onClick={onOpenOverview}
+            aria-current={isOverviewActive ? "page" : undefined}
+            aria-label={`미완료 ${openTaskCount}개 모아보기`}
+          >
+            <span>미완료</span>
+            <strong>{openTaskCount}</strong>
           </button>
+          <div ref={tabsRef} className="folder-tabs-scroll">
+            <span className="visually-hidden" aria-live="polite">
+              {reorderAnnouncement}
+            </span>
+            {folders.map((folder, folderIndex) => (
+              <SortableFolderTab
+                key={folder.id}
+                folder={folder}
+                index={folderIndex}
+                dragDisabled={isMobileReorderLayout}
+                isActive={!isOverviewActive && activeFolder === folder.id}
+                isEditing={editingFolder === folder.id}
+                folderDraft={folderDraft}
+                editInputRef={editInputRef}
+                onFolderDraftChange={onFolderDraftChange}
+                onSelectFolder={onSelectFolder}
+                onStartEditingFolder={onStartEditingFolder}
+                onCommitFolderName={onCommitFolderName}
+                onCancelFolderEdit={onCancelFolderEdit}
+              />
+            ))}
+            <button className="folder-add-tab" type="button" onClick={onAddFolder}>
+              <Plus aria-hidden="true" size={18} />
+              새 폴더
+            </button>
+          </div>
         </nav>
         <DragOverlay className="folder-tab-drag-overlay">
           {(source) => {
@@ -156,7 +196,11 @@ export default function FolderTabs({
             if (!folder) return null;
 
             return (
-              <div className={`folder-tab ${activeFolder === folder.id ? "is-active" : ""}`}>
+              <div
+                className={`folder-tab ${
+                  !isOverviewActive && activeFolder === folder.id ? "is-active" : ""
+                }`}
+              >
                 <span>{folder.label}</span>
               </div>
             );
@@ -168,6 +212,7 @@ export default function FolderTabs({
         folders={folders}
         isOpen={isMobileReorderOpen}
         announcement={reorderAnnouncement}
+        returnFocusRef={mobileReorderTriggerRef}
         onClose={() => setIsMobileReorderOpen(false)}
         onDragEnd={(event) => handleDragEnd(event, { refocusTab: false })}
       />

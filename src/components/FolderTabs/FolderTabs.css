@@ -5,6 +5,18 @@
   align-items: flex-end;
   gap: 6px;
   padding: 8px 0 0 18px;
+  overflow: hidden;
+}
+
+.folder-tabs-scroll {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  align-items: flex-end;
+  gap: 6px;
+  min-width: 0;
+  margin-top: -8px;
+  padding-top: 8px;
   overflow-x: auto;
   overflow-y: hidden;
   overscroll-behavior-x: contain;
@@ -13,14 +25,20 @@
   -ms-overflow-style: none;
 }
 
-.folder-tabs::-webkit-scrollbar {
+.folder-tabs-scroll::-webkit-scrollbar {
   display: none;
 }
 
 .folder-tabs-mobile-tools {
-  display: flex;
+  display: none;
+  align-items: center;
   justify-content: flex-end;
+  gap: 8px;
   margin-bottom: 6px;
+}
+
+.folder-tabs-mobile-tools.is-coarse-pointer {
+  display: flex;
 }
 
 .folder-tabs-mobile-tools button {
@@ -36,6 +54,34 @@
   color: var(--muted);
   font-size: 14px;
   font-weight: 850;
+}
+
+.folder-tabs-mobile-tools .folder-overview-mobile {
+  display: none;
+  margin-right: auto;
+  border-color: var(--overview-line);
+  background: var(--overview-tab);
+  color: var(--overview-muted);
+}
+
+.folder-tabs-mobile-tools .folder-overview-mobile.is-active {
+  border-color: var(--overview-line-strong);
+  background: var(--overview-surface);
+  color: var(--overview-ink);
+  box-shadow: inset 0 -2px 0 var(--overview-surface-deep);
+}
+
+.folder-overview-mobile strong {
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--overview-surface-deep);
+  color: var(--overview-ink);
+  font-size: 12px;
+  line-height: 1;
 }
 
 .folder-tabs .visually-hidden {
@@ -79,7 +125,50 @@
   font-weight: 850;
 }
 
+button.folder-overview-tab {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+  border-color: var(--overview-line);
+  background: var(--overview-tab);
+  color: var(--overview-muted);
+  cursor: pointer;
+  touch-action: pan-x;
+}
+
+button.folder-overview-tab.is-active {
+  border-color: var(--overview-line-strong);
+  background: var(--overview-surface);
+  color: var(--overview-ink);
+}
+
+.folder-overview-tab strong {
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--overview-control-surface);
+  color: var(--overview-muted);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.folder-overview-tab.is-active strong {
+  background: var(--overview-surface-deep);
+  color: var(--overview-ink);
+}
+
 @media (max-width: 760px) {
+  .folder-tabs-mobile-tools,
+  .folder-tabs-mobile-tools .folder-overview-mobile {
+    display: flex;
+  }
+
+  .folder-overview-tab {
+    display: none;
+  }
+
   .folder-tab-drag-overlay {
     width: 106px;
   }

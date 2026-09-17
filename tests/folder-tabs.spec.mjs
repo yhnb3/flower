@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
-import { chromium } from "playwright";
+import { browserType } from "./e2e-browser.mjs";
 
 const appUrl = process.env.APP_URL ?? "http://127.0.0.1:5173/";
-const browser = await chromium.launch();
+const browser = await browserType.launch();
 const page = await browser.newPage({ viewport: { width: 640, height: 900 } });
 const runtimeErrors = [];
 
@@ -36,7 +36,8 @@ try {
     await folderNameInput.press("Enter");
   }
 
-  const folderTabs = page.locator(".folder-tabs");
+  const folderTabsNav = page.locator(".folder-tabs");
+  const folderTabs = page.locator(".folder-tabs-scroll");
   assert.equal(
     await page.getByRole("button", { name: "폴더 순서 변경" }).count(),
     0,
@@ -51,6 +52,7 @@ try {
   const folderOneBox = await folderOne.boundingBox();
   const folderTwoBox = await folderTwo.boundingBox();
   const folderThreeBox = await folderThree.boundingBox();
+  const folderOneOffsetLeft = await folderOne.evaluate((tab) => tab.offsetLeft);
   assert.ok(folderOneBox, "the dragged folder should be visible");
   assert.ok(folderTwoBox, "the following folder should be visible");
   assert.ok(folderThreeBox, "the drop target should be visible");
@@ -117,9 +119,10 @@ try {
   );
 
   const folderTwoDuringDrag = await folderTwo.boundingBox();
+  const folderTwoOffsetDuringDrag = await folderTwo.evaluate((tab) => tab.offsetLeft);
   assert.ok(folderTwoDuringDrag, "the following folder should remain visible while dragging");
   assert.ok(
-    Math.abs(folderTwoDuringDrag.x - folderOneBox.x) < 8,
+    Math.abs(folderTwoOffsetDuringDrag - folderOneOffsetLeft) < 8,
     "the following tab should close the dragged tab's original gap immediately",
   );
 
@@ -132,7 +135,9 @@ try {
     "pointer reordering should not leave a keyboard focus outline on the moved tab",
   );
 
-  const reorderedLabels = await folderTabs.locator(".folder-tab span").allTextContents();
+  const reorderedLabels = await folderTabs
+    .locator(".folder-tab[data-folder-id] span")
+    .allTextContents();
   assert.deepEqual(
     reorderedLabels.slice(0, 4),
     ["오늘", "폴더 2", "폴더 3", "폴더 1"],
@@ -141,7 +146,7 @@ try {
 
   await page.reload({ waitUntil: "load" });
   assert.deepEqual(
-    (await folderTabs.locator(".folder-tab span").allTextContents()).slice(0, 4),
+    (await folderTabs.locator(".folder-tab[data-folder-id] span").allTextContents()).slice(0, 4),
     ["오늘", "폴더 2", "폴더 3", "폴더 1"],
     "the reordered folder tabs should persist after a reload",
   );
@@ -151,7 +156,7 @@ try {
   await page.keyboard.press("ArrowLeft");
   await page.keyboard.press("Space");
   assert.deepEqual(
-    (await folderTabs.locator(".folder-tab span").allTextContents()).slice(0, 4),
+    (await folderTabs.locator(".folder-tab[data-folder-id] span").allTextContents()).slice(0, 4),
     ["오늘", "폴더 2", "폴더 1", "폴더 3"],
     "Space and ArrowLeft should provide a keyboard alternative to dragging",
   );
@@ -172,7 +177,7 @@ try {
   await page.keyboard.press("ArrowRight");
   await page.keyboard.press("Space");
   assert.deepEqual(
-    (await folderTabs.locator(".folder-tab span").allTextContents()).slice(0, 4),
+    (await folderTabs.locator(".folder-tab[data-folder-id] span").allTextContents()).slice(0, 4),
     ["오늘", "폴더 2", "폴더 3", "폴더 1"],
     "Space and ArrowRight should move the focused folder back to the right",
   );
@@ -236,6 +241,46 @@ try {
   assert.ok(
     wheelDelta > 0 ? afterScrollLeft > beforeScrollLeft : afterScrollLeft < beforeScrollLeft,
     `a regular vertical wheel gesture should move overflowing folder tabs horizontally (${beforeScrollLeft} -> ${afterScrollLeft})`,
+  );
+
+  const lineModeScroll = await folderTabs.evaluate((tabs) => {
+    tabs.scrollLeft = 0;
+    tabs.dispatchEvent(
+      new WheelEvent("wheel", {
+        bubbles: true,
+        cancelable: true,
+        deltaY: 3,
+        deltaMode: WheelEvent.DOM_DELTA_LINE,
+      }),
+    );
+    return tabs.scrollLeft;
+  });
+
+  assert.ok(
+    lineModeScroll >= 40,
+    `line-based mouse wheel input should move the tabs by a usable distance (${lineModeScroll}px)`,
+  );
+
+  await page.setViewportSize({ width: 900, height: 900 });
+  await folderTabs.evaluate((tabs) => {
+    tabs.scrollLeft = tabs.scrollWidth;
+  });
+  await page.waitForTimeout(100);
+  const pinnedOverviewPosition = await folderTabsNav.evaluate((tabs) => {
+    const overview = tabs.querySelector(".folder-overview-tab");
+    const tabsRect = tabs.getBoundingClientRect();
+    const overviewRect = overview.getBoundingClientRect();
+    return {
+      left: overviewRect.left,
+      right: overviewRect.right,
+      visibleLeft: tabsRect.left,
+      visibleRight: tabsRect.right,
+    };
+  });
+  assert.ok(
+    pinnedOverviewPosition.left >= pinnedOverviewPosition.visibleLeft &&
+      pinnedOverviewPosition.right <= pinnedOverviewPosition.visibleRight,
+    "the unfinished overview tab should remain visible at every horizontal scroll position",
   );
 
   assert.deepEqual(runtimeErrors, [], "folder tab interactions should not cause runtime errors");

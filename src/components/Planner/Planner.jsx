@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Trash2 } from "lucide-react";
 import {
   legacyPlannerStorageKey,
@@ -8,6 +8,7 @@ import {
 import { readStoredTheme, writeStoredTheme } from "../../theme-preference.js";
 import FolderTabs from "../FolderTabs/FolderTabs.jsx";
 import MemoArea from "../MemoArea/MemoArea.jsx";
+import OpenTasksOverview from "../OpenTasksOverview/OpenTasksOverview.jsx";
 import SyncStatus from "../SyncStatus/SyncStatus.jsx";
 import TaskBoard from "../TaskBoard/TaskBoard.jsx";
 import ThemeMenu from "../ThemeMenu/ThemeMenu.jsx";
@@ -55,12 +56,19 @@ export default function Planner({
   const [memoEditDraft, setMemoEditDraft] = useState("");
   const [editingTask, setEditingTask] = useState(null);
   const [taskEditDraft, setTaskEditDraft] = useState("");
+  const [activeView, setActiveView] = useState("folder");
+  const [recentCompletion, setRecentCompletion] = useState(null);
   const [theme, setTheme] = useState(() => readStoredTheme());
   const hasMountedRef = useRef(false);
 
   const visibleTasks = tasks.filter((task) => task.folder === activeFolder);
   const visibleMemos = memos.filter((memo) => memo.folder === activeFolder);
+  const openTasks = tasks.filter((task) => !task.done);
   const activeMeta = folders.find((folder) => folder.id === activeFolder);
+
+  const dismissOverviewCompletion = useCallback((id) => {
+    setRecentCompletion((current) => (current?.id === id ? null : current));
+  }, []);
 
   useEffect(() => {
     const planner = { folders, activeFolder, tasks, memos };
@@ -85,6 +93,24 @@ export default function Planner({
       current.map((task) => (task.id === id ? { ...task, done: !task.done } : task)),
     );
     if (editingTask === id) cancelTaskEdit();
+  }
+
+  function completeTaskFromOverview(id) {
+    const task = tasks.find((item) => item.id === id);
+    if (!task || task.done) return;
+
+    setTasks((current) =>
+      current.map((item) => (item.id === id ? { ...item, done: true } : item)),
+    );
+    setRecentCompletion({ id: task.id, title: task.title });
+    if (editingTask === id) cancelTaskEdit();
+  }
+
+  function undoOverviewCompletion(id) {
+    setTasks((current) =>
+      current.map((task) => (task.id === id ? { ...task, done: false } : task)),
+    );
+    setRecentCompletion((current) => (current?.id === id ? null : current));
   }
 
   function removeTask(id) {
@@ -157,6 +183,8 @@ export default function Planner({
     const id = `folder-${window.crypto.randomUUID()}`;
     const nextFolder = { id, label: "새 폴더" };
     setFolders((current) => [...current, nextFolder]);
+    setActiveView("folder");
+    setRecentCompletion(null);
     setActiveFolder(id);
     setEditingFolder(id);
     setFolderDraft(nextFolder.label);
@@ -232,6 +260,16 @@ export default function Planner({
     writeStoredTheme(nextTheme);
   }
 
+  function openOverview() {
+    setActiveView("overview");
+  }
+
+  function selectFolder(id) {
+    setActiveView("folder");
+    setRecentCompletion(null);
+    setActiveFolder(id);
+  }
+
   return (
     <main className="app-shell" data-styleseed-recipe="calm-consumer" data-theme={theme}>
       <section className="workspace" aria-labelledby="page-title">
@@ -249,11 +287,14 @@ export default function Planner({
           <FolderTabs
             folders={folders}
             activeFolder={activeFolder}
+            isOverviewActive={activeView === "overview"}
+            openTaskCount={openTasks.length}
             editingFolder={editingFolder}
             folderDraft={folderDraft}
             selectFolderDraftOnFocus={selectFolderDraftOnFocus}
             onFolderDraftChange={setFolderDraft}
-            onSelectFolder={setActiveFolder}
+            onOpenOverview={openOverview}
+            onSelectFolder={selectFolder}
             onStartEditingFolder={startEditingFolder}
             onCommitFolderName={commitFolderName}
             onCancelFolderEdit={cancelFolderEdit}
@@ -261,48 +302,69 @@ export default function Planner({
             onReorderFolders={reorderFolders}
           />
 
-          <div className="folder-sheet">
-            <MemoArea
-              memos={visibleMemos}
-              draft={memoDraft}
-              onDraftChange={setMemoDraft}
-              onAdd={addMemo}
-              editingMemo={editingMemo}
-              editDraft={memoEditDraft}
-              onEditDraftChange={setMemoEditDraft}
-              onStartEditing={startEditingMemo}
-              onCommitEdit={commitMemoEdit}
-              onCancelEdit={cancelMemoEdit}
-              onRemove={removeMemo}
-            />
+          <div className={`folder-sheet ${activeView === "overview" ? "is-overview" : ""}`}>
+            {activeView === "overview" ? (
+              <OpenTasksOverview
+                folders={folders}
+                tasks={tasks}
+                editingTask={editingTask}
+                editDraft={taskEditDraft}
+                recentCompletion={recentCompletion}
+                onEditDraftChange={setTaskEditDraft}
+                onStartEditing={startEditingTask}
+                onCommitEdit={commitTaskEdit}
+                onCancelEdit={cancelTaskEdit}
+                onComplete={completeTaskFromOverview}
+                onUndoCompletion={undoOverviewCompletion}
+                onDismissCompletion={dismissOverviewCompletion}
+                onRemove={removeTask}
+                onOpenFolder={selectFolder}
+              />
+            ) : (
+              <>
+                <MemoArea
+                  memos={visibleMemos}
+                  draft={memoDraft}
+                  onDraftChange={setMemoDraft}
+                  onAdd={addMemo}
+                  editingMemo={editingMemo}
+                  editDraft={memoEditDraft}
+                  onEditDraftChange={setMemoEditDraft}
+                  onStartEditing={startEditingMemo}
+                  onCommitEdit={commitMemoEdit}
+                  onCancelEdit={cancelMemoEdit}
+                  onRemove={removeMemo}
+                />
 
-            <TaskBoard
-              tasks={visibleTasks}
-              draft={taskDraft}
-              onDraftChange={setTaskDraft}
-              onAdd={addTask}
-              editingTask={editingTask}
-              editDraft={taskEditDraft}
-              onEditDraftChange={setTaskEditDraft}
-              onStartEditing={startEditingTask}
-              onCommitEdit={commitTaskEdit}
-              onCancelEdit={cancelTaskEdit}
-              onToggle={toggleTask}
-              onRemove={removeTask}
-            />
+                <TaskBoard
+                  tasks={visibleTasks}
+                  draft={taskDraft}
+                  onDraftChange={setTaskDraft}
+                  onAdd={addTask}
+                  editingTask={editingTask}
+                  editDraft={taskEditDraft}
+                  onEditDraftChange={setTaskEditDraft}
+                  onStartEditing={startEditingTask}
+                  onCommitEdit={commitTaskEdit}
+                  onCancelEdit={cancelTaskEdit}
+                  onToggle={toggleTask}
+                  onRemove={removeTask}
+                />
 
-            <div className="folder-bottom-actions">
-              <button
-                className="folder-delete-button"
-                type="button"
-                onClick={deleteActiveFolder}
-                disabled={folders.length <= 1}
-                aria-label={`${activeMeta.label} 폴더 삭제`}
-              >
-                <Trash2 aria-hidden="true" size={18} />
-                삭제
-              </button>
-            </div>
+                <div className="folder-bottom-actions">
+                  <button
+                    className="folder-delete-button"
+                    type="button"
+                    onClick={deleteActiveFolder}
+                    disabled={folders.length <= 1}
+                    aria-label={`${activeMeta.label} 폴더 삭제`}
+                  >
+                    <Trash2 aria-hidden="true" size={18} />
+                    삭제
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </section>

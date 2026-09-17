@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
-import { chromium, devices } from "playwright";
+import { browserName, browserType, devices } from "./e2e-browser.mjs";
 
 const appUrl = process.env.APP_URL ?? "http://127.0.0.1:5173/";
-const browser = await chromium.launch();
+const browser = await browserType.launch();
 const context = await browser.newContext(devices["iPhone 13 Pro"]);
 const page = await context.newPage();
 const runtimeErrors = [];
@@ -15,6 +15,25 @@ page.on("console", (message) => {
 async function swipeWithTouch(locator, deltaX, deltaY, holdMilliseconds = 0) {
   const box = await locator.boundingBox();
   assert.ok(box, "the swipe target should be visible");
+
+  if (browserName === "webkit") {
+    assert.equal(holdMilliseconds, 0, "WebKit drag gestures use the keyboard path");
+    await locator.evaluate((element, movement) => {
+      let scroller = element.parentElement;
+      while (scroller) {
+        const canScrollX = movement.deltaX !== 0 && scroller.scrollWidth > scroller.clientWidth;
+        const canScrollY = movement.deltaY !== 0 && scroller.scrollHeight > scroller.clientHeight;
+        if (canScrollX || canScrollY) {
+          scroller.scrollBy({ left: -movement.deltaX, top: -movement.deltaY });
+          return;
+        }
+        scroller = scroller.parentElement;
+      }
+      throw new Error("No scrollable ancestor found for WebKit gesture check");
+    }, { deltaX, deltaY });
+    await page.waitForTimeout(300);
+    return;
+  }
 
   const client = await context.newCDPSession(page);
   const startX = box.x + box.width / 2;
@@ -57,7 +76,7 @@ try {
     await folderNameInput.press("Enter");
   }
 
-  const folderTabs = page.locator(".folder-tabs");
+  const folderTabs = page.locator(".folder-tabs-scroll");
   const addFolderButton = page.getByRole("button", { name: "새 폴더", exact: true });
   await addFolderButton.scrollIntoViewIfNeeded();
 
@@ -98,7 +117,14 @@ try {
   const folderOneHandle = reorderDialog.getByRole("button", { name: "폴더 1 이동" });
   await folderOneHandle.scrollIntoViewIfNeeded();
   await page.waitForTimeout(200);
-  await swipeWithTouch(folderOneHandle, 0, 90, 320);
+  if (browserName === "webkit") {
+    await folderOneHandle.focus();
+    await page.keyboard.press("Space");
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("Space");
+  } else {
+    await swipeWithTouch(folderOneHandle, 0, 90, 320);
+  }
 
   assert.deepEqual(
     (await reorderList.locator(".mobile-folder-reorder-label").allTextContents()).slice(0, 4),
@@ -108,13 +134,16 @@ try {
 
   await reorderDialog.getByRole("button", { name: "완료" }).click();
   await reorderDialog.waitFor({ state: "hidden" });
+  await page.waitForFunction(
+    () => document.activeElement?.getAttribute("aria-label") === "폴더 순서 변경",
+  );
   assert.equal(
     await reorderTrigger.evaluate((button) => document.activeElement === button),
     true,
     "closing the mobile reorder dialog should restore focus to its trigger",
   );
   assert.deepEqual(
-    (await folderTabs.locator(".folder-tab span").allTextContents()).slice(0, 4),
+    (await folderTabs.locator(".folder-tab[data-folder-id] span").allTextContents()).slice(0, 4),
     ["오늘", "폴더 2", "폴더 1", "폴더 3"],
     "the mobile reorder result should be reflected in the tab strip",
   );

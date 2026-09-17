@@ -41,6 +41,35 @@
   content: "";
 }
 
+.folder-sheet.is-overview {
+  color-scheme: light;
+  --paper: var(--overview-surface);
+  --paper-deep: var(--overview-surface-deep);
+  --paper-tab: var(--overview-tab);
+  --paper-soft: var(--overview-surface-raised);
+  --paper-soft-translucent: var(--overview-surface-raised);
+  --control-surface: var(--overview-control-surface);
+  --column-surface: var(--overview-group-surface);
+  --quiet-surface: var(--overview-group-surface);
+  --completed-surface: var(--overview-control-surface);
+  --check-surface: var(--overview-surface-raised);
+  --check-inset: var(--overview-check-inset);
+  --ink: var(--overview-ink);
+  --accent-ink: var(--overview-ink);
+  --muted: var(--overview-muted);
+  --placeholder: var(--overview-muted);
+  --line: var(--overview-line);
+  --line-strong: var(--overview-line-strong);
+  --line-soft: var(--overview-line-soft);
+  --line-muted: var(--overview-line-muted);
+  --line-subtle: var(--overview-line-subtle);
+  --line-faint: var(--overview-line-subtle);
+  --note-shadow: var(--overview-note-shadow);
+  --focus-ring: var(--overview-focus-ring);
+  background: var(--paper);
+  color: var(--ink);
+}
+
 .folder-delete-button {
   display: inline-flex;
   align-items: center;
@@ -88,6 +117,10 @@
   .folder-sheet {
     min-height: 640px;
     padding: 18px;
+  }
+
+  .folder-sheet.is-overview {
+    min-height: 0;
   }
 
   .folder-bottom-actions {
