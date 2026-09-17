@@ -28,14 +28,52 @@ jobs:
       - name: Audit dependencies
         run: npm audit --audit-level=high
 
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Install browsers
+        run: npx playwright install --with-deps chromium webkit
 
       - name: Run unit and integration tests
         run: npm test
 
-      - name: Run browser tests
+      - name: Run Chromium browser tests
         run: npm run test:e2e
+
+      - name: Run WebKit browser tests
+        run: npm run test:e2e:safari
 
       - name: Build production bundle
         run: npm run build
+
+  deploy-production:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: vercel-production
+      cancel-in-progress: true
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@59.20.0
+
+      - name: Pull production environment
+        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+
+      - name: Build Vercel artifacts
+        run: vercel build --prod --token="$VERCEL_TOKEN"
+
+      - name: Deploy to Vercel production
+        run: vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"

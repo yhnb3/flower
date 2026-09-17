@@ -42,7 +42,12 @@ async function swipeWithTouch(locator, deltaX, deltaY, holdMilliseconds = 0) {
     type: "touchStart",
     touchPoints: [{ x: startX, y: startY, id: 1, radiusX: 4, radiusY: 4, force: 1 }],
   });
-  if (holdMilliseconds > 0) await page.waitForTimeout(holdMilliseconds);
+  if (holdMilliseconds > 0) {
+    await page.waitForTimeout(holdMilliseconds);
+    await page
+      .locator(".mobile-folder-reorder-overlay .mobile-folder-reorder-item")
+      .waitFor({ state: "visible" });
+  }
 
   for (let step = 1; step <= 8; step += 1) {
     await client.send("Input.dispatchTouchEvent", {
